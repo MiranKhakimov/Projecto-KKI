@@ -25,6 +25,7 @@ his_more = pygame.image.load("his_more.png")
 ur_more = pygame.image.load("ur_more.png")
 equals = pygame.image.load("equals.png")
 attack_sound = pygame.mixer.Sound("attack_sound.mp3")
+settings_bg = pygame.image.load("settings_bg.jpg")
 
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 pygame.display.flip()
@@ -127,8 +128,9 @@ class Button:
             cache = pygame.transform.scale(butt_pres, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
             if click[0] == 1:
-                # table_restart()
+                table_restart()
                 run_game()
+                table_create()
         else:
             cache = pygame.transform.scale(butt, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
@@ -160,8 +162,22 @@ class Button:
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font)
 
+    def draw_turn(self):
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        if self.x <= int(mouse[0]) <= int(self.x + self.width) and self.y < int(mouse[1]) < self.y + self.height:
+            cache = pygame.transform.scale(butt_pres, (self.width, self.height))
+            screen.blit(cache, (self.x, self.y))
+            if click[0] == 1:
+                card_places[0] = 1
+                turn()
+        else:
+            cache = pygame.transform.scale(butt, (self.width, self.height))
+            screen.blit(cache, (self.x, self.y))
+        print_text(self.message, self.x_m, self.y_m, self.font)
 
-def print_text(message, x, y, font_size, font_color=(0, 0, 0), font_type="Palatino Linotype.ttf"):
+
+def print_text(message, x, y, font_size, font_color=(200, 200, 200), font_type="Palatino Linotype.ttf"):
     font_type = pygame.font.Font(font_type, font_size)
     text = font_type.render(message, True, font_color)
     screen.blit(text, (x, y))
@@ -1362,6 +1378,8 @@ def run_menu():
 
 def run_settings():
     screen.blit(bg, (0, 0))
+    print_text("Громкость звука", w * 0.35, h * 0.35, 20)
+
     game = True
     while game:
         for event in pygame.event.get():
@@ -1372,8 +1390,31 @@ def run_settings():
 
 
 def run_game():
+    global pos_abil, func_choice
     game = True
     while game:
+        if func_choice == 0:
+            table_create()
+            button = Button(60, 30, w - 60, int(h / 2) - 30, "Turn", w - 50, int(h / 2) - 22, 20)
+            button.draw_turn()
+            button = Button(30, 30, w - 30, 0, "X", w - 22, 9, 20)
+            button.draw_back()
+            table_active()
+        elif func_choice == 2:
+            daw_func()
+        elif func_choice == 3:
+            solar_func(pos_abil)
+        elif func_choice == 13:
+            demilich_func()
+        elif func_choice == 16:
+            wrok_func()
+            turn()
+        elif func_choice == 19:
+            shadow_demon(pos_abil)
+        elif func_choice == 24:
+            bronz_dragon()
+        elif func_choice == 28:
+            silencer(pos_abil)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
