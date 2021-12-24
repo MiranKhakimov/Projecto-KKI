@@ -38,13 +38,14 @@ pentagram = []
 
 index = 0
 pymixer = pygame.mixer.music
-bg_music = ["Trapper.mp3", "Artileria.mp3", "Burzum-1.mp3",
-            "Burzum-2.mp3", "Burzum-3.mp3", "Burzum-4.mp3",
-            "Burzum-5.mp3", "STS-1.mp3", "STS-2", "STS-3"]
+bg_music = ["Trapper.mp3", "Artileria.mp3", "Burzum-2.mp3",
+            "Burzum-3.mp3", "Burzum-4.mp3", "Burzum-5.mp3",
+            "STS-1.mp3", "STS-2.mp3", "STS-3.mp3"]
 
-bg_music_index = ['Inscryption - The Trapper', 'AAArtileria', 'Burzum - The Lord Of The Dwarves',
-                  'A Thulean Perspective', 'The Road To Hell', 'The Sacred Well', 'ForeBears',
-                  'Slay The Spire OST - Exordium']
+bg_music_index = ['Inscryption - The Trapper', 'AAArtileria', 'Burzum - A Thulean Perspective',
+                  'Burzum - The Road To Hell', 'Burzum - The Sacred Well',
+                  'Burzum - ForeBears', 'Slay The Spire OST - Exordium',
+                  'Slay The Spire OST - Escape Plan', 'Slay The Spire OST - The City']
 
 for i in range(15):
     photo = pygame.image.load("sword_attack_{}.png".format(i + 1))
@@ -92,7 +93,7 @@ pos_abil = 0
 koeff_ur = 1
 koeff_his = 1
 
-pymixer.load("{}".format(bg_music[4]))
+pymixer.load("{}".format(bg_music[index]))
 pymixer.play(loops=-1)
 
 class Button:
@@ -178,6 +179,32 @@ class Button:
             cache = pygame.transform.scale(butt, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
+
+
+class SettingsButton:
+    def __init__(self, x1, y1, x2, y2):
+        self.x1 = x1
+        self.y1 = y1
+        self.x2 = x2
+        self.y2 = y2
+
+    def music_change(self):
+        global index
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        if self.x1 <= mouse[0] <= self.x2 and self.y1 < mouse[1] < self.y2:
+            if click[0] == 1:
+                index += 1
+                if index >= len(bg_music_index):
+                    index = 0
+                pymixer.load("{}".format(bg_music[index]))
+                pymixer.play(loops=-1)
+            elif click[2] == 1:
+                index -= 1
+                if index <= 0:
+                    index = len(bg_music_index) - 1
+                pymixer.load("{}".format(bg_music[index]))
+                pymixer.play(loops=-1)
 
 
 def print_text(message, x, y, font_size, font_color=(0, 0, 0), font_type="Palatino Linotype.ttf"):
@@ -1378,23 +1405,20 @@ def run_menu():
         pygame.display.update()
 
 
-def music_change():
-    pass
-
-
 def run_settings():
     button = Button(30, 30, w - 30, 0, "X", w - 22, 9, 20)
-    screen.blit(settings_bg, (0, 0))
-    print_text("Громкость звука", w * 0.07, h * 0.29, 40, (200, 200, 200))
-    print_text('Кликните на название, чтобы изменить музыку', w * 0.07, h * 0.43, 35, (200, 200, 200))
-    print_text('Играет:', w * 0.07, h * 0.51, 35, (200, 200, 200))
-    print_text(bg_music_index[index], w * 0.15, h * 0.51, 35, (200, 200, 200))
+    change_music = SettingsButton(272, 528, 982, 611)
     game = True
     while game:
+        screen.blit(settings_bg, (0, 0))
+        print_text("Громкость звука", w * 0.07, h * 0.29, 40, (200, 200, 200))
+        print_text('Кликните на название, чтобы изменить музыку', w * 0.07, h * 0.43, 35, (200, 200, 200))
+        print_text('Играет:', w * 0.07, h * 0.51, 35, (200, 200, 200))
+        print_text(bg_music_index[index], w * 0.15, h * 0.51, 35, (200, 200, 200))
         button.draw_back()
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
-                print(pygame.mouse.get_pos())
+                change_music.music_change()
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
