@@ -24,8 +24,8 @@ his_at_point = pygame.image.load("health_bar_red.png")
 his_more = pygame.image.load("his_more.png")
 ur_more = pygame.image.load("ur_more.png")
 equals = pygame.image.load("equals.png")
-attack_sound = pygame.mixer.Sound("attack_sound.mp3")
 settings_bg = pygame.image.load("settings_bg.jpg")
+attack_sound = pygame.mixer.Sound("attack_sound.mp3")
 
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 pygame.display.flip()
@@ -58,6 +58,7 @@ for i in range(22):
 
 print(w, h)
 bg = pygame.transform.scale(bg, (w, h))
+settings_bg = pygame.transform.scale(settings_bg, (w, h))
 edging = pygame.transform.scale(edging, (int(w * 0.109), int(h * 0.296)))
 print((int(w * 0.109), int(h * 0.296)))
 ur_at_point = pygame.transform.scale(ur_at_point, (int(w * 0.109), int(w * 0.109)))
@@ -91,9 +92,12 @@ pos_abil = 0
 koeff_ur = 1
 koeff_his = 1
 
+pymixer.load("{}".format(bg_music[4]))
+pymixer.play(loops=-1)
 
 class Button:
-    def __init__(self, width, height, x, y, message, x_m, y_m, font=20):
+    def __init__(self, width, height, x, y, message, x_m, y_m, font=20, font_color=(0, 0, 0)):
+        self.font_color = font_color
         self.width = width
         self.height = height
         self.act_cl = butt
@@ -104,7 +108,6 @@ class Button:
         self.x_m = x_m
         self.y_m = y_m
         self.font = font
-
 
     def draw_close(self):
         mouse = pygame.mouse.get_pos()
@@ -119,7 +122,7 @@ class Button:
         else:
             cache = pygame.transform.scale(butt, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
-        print_text(self.message, self.x_m, self.y_m, self.font)
+        print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
     def draw_start(self):
         mouse = pygame.mouse.get_pos()
@@ -134,7 +137,7 @@ class Button:
         else:
             cache = pygame.transform.scale(butt, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
-        print_text(self.message, self.x_m, self.y_m, self.font)
+        print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
     def draw_back(self):
         mouse = pygame.mouse.get_pos()
@@ -147,7 +150,7 @@ class Button:
         else:
             cache = pygame.transform.scale(butt, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
-        print_text(self.message, self.x_m, self.y_m, self.font)
+        print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
     def draw_settings(self):
         mouse = pygame.mouse.get_pos()
@@ -160,7 +163,7 @@ class Button:
         else:
             cache = pygame.transform.scale(butt, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
-        print_text(self.message, self.x_m, self.y_m, self.font)
+        print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
     def draw_turn(self):
         mouse = pygame.mouse.get_pos()
@@ -174,10 +177,10 @@ class Button:
         else:
             cache = pygame.transform.scale(butt, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
-        print_text(self.message, self.x_m, self.y_m, self.font)
+        print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
 
-def print_text(message, x, y, font_size, font_color=(200, 200, 200), font_type="Palatino Linotype.ttf"):
+def print_text(message, x, y, font_size, font_color=(0, 0, 0), font_type="Palatino Linotype.ttf"):
     font_type = pygame.font.Font(font_type, font_size)
     text = font_type.render(message, True, font_color)
     screen.blit(text, (x, y))
@@ -1358,15 +1361,14 @@ def death_anim():
 
 
 def run_menu():
-    pymixer.load("{}".format(bg_music[index]))
-    pymixer.play()
+    pymixer.set_volume(0.5)
     screen.blit(bg, (0, 0))
     game = True
     button_start = Button(180, 50, w // 2 - 90, h * 0.3, "В бой!", w * 0.478, h * 0.321, 21)
-    button = Button(180, 50, w // 2 - 90, h * 0.6, "Акоп", w * 0.485, h * 0.621, 20)
+    button_exit = Button(180, 50, w // 2 - 90, h * 0.6, "Акоп", w * 0.485, h * 0.621, 20)
     button_settings = Button(180, 50, w // 2 - 90, h * 0.45, "Настройки", w * 0.462, h * 0.471, 20)
     while game:
-        button.draw_close()
+        button_exit.draw_close()
         button_start.draw_start()
         button_settings.draw_settings()
         for event in pygame.event.get():
@@ -1376,13 +1378,23 @@ def run_menu():
         pygame.display.update()
 
 
-def run_settings():
-    screen.blit(bg, (0, 0))
-    print_text("Громкость звука", w * 0.35, h * 0.35, 20)
+def music_change():
+    pass
 
+
+def run_settings():
+    button = Button(30, 30, w - 30, 0, "X", w - 22, 9, 20)
+    screen.blit(settings_bg, (0, 0))
+    print_text("Громкость звука", w * 0.07, h * 0.29, 40, (200, 200, 200))
+    print_text('Кликните на название, чтобы изменить музыку', w * 0.07, h * 0.43, 35, (200, 200, 200))
+    print_text('Играет:', w * 0.07, h * 0.51, 35, (200, 200, 200))
+    print_text(bg_music_index[index], w * 0.15, h * 0.51, 35, (200, 200, 200))
     game = True
     while game:
+        button.draw_back()
         for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                print(pygame.mouse.get_pos())
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
