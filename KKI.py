@@ -24,8 +24,8 @@ his_at_point = pygame.image.load("health_bar_red.png")
 his_more = pygame.image.load("his_more.png")
 ur_more = pygame.image.load("ur_more.png")
 equals = pygame.image.load("equals.png")
-attack_sound = pygame.mixer.Sound("attack_sound.mp3")
 settings_bg = pygame.image.load("settings_bg.jpg")
+attack_sound = pygame.mixer.Sound("attack_sound.mp3")
 
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 pygame.display.flip()
@@ -93,7 +93,8 @@ koeff_his = 1
 
 
 class Button:
-    def __init__(self, width, height, x, y, message, x_m, y_m, font=20):
+    def __init__(self, width, height, x, y, message, x_m, y_m, font=20, font_color=(0, 0, 0)):
+        self.font_color = font_color
         self.width = width
         self.height = height
         self.act_cl = butt
@@ -119,7 +120,7 @@ class Button:
         else:
             cache = pygame.transform.scale(butt, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
-        print_text(self.message, self.x_m, self.y_m, self.font)
+        print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
     def draw_start(self):
         mouse = pygame.mouse.get_pos()
@@ -134,7 +135,7 @@ class Button:
         else:
             cache = pygame.transform.scale(butt, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
-        print_text(self.message, self.x_m, self.y_m, self.font)
+        print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
     def draw_back(self):
         mouse = pygame.mouse.get_pos()
@@ -147,7 +148,7 @@ class Button:
         else:
             cache = pygame.transform.scale(butt, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
-        print_text(self.message, self.x_m, self.y_m, self.font)
+        print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
     def draw_settings(self):
         mouse = pygame.mouse.get_pos()
@@ -160,7 +161,7 @@ class Button:
         else:
             cache = pygame.transform.scale(butt, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
-        print_text(self.message, self.x_m, self.y_m, self.font)
+        print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
     def draw_turn(self):
         mouse = pygame.mouse.get_pos()
@@ -174,10 +175,10 @@ class Button:
         else:
             cache = pygame.transform.scale(butt, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
-        print_text(self.message, self.x_m, self.y_m, self.font)
+        print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
 
-def print_text(message, x, y, font_size, font_color=(200, 200, 200), font_type="Palatino Linotype.ttf"):
+def print_text(message, x, y, font_size, font_color=(0, 0, 0), font_type="Palatino Linotype.ttf"):
     font_type = pygame.font.Font(font_type, font_size)
     text = font_type.render(message, True, font_color)
     screen.blit(text, (x, y))
@@ -1378,8 +1379,7 @@ def run_menu():
 
 def run_settings():
     screen.blit(bg, (0, 0))
-    print_text("Громкость звука", w * 0.35, h * 0.35, 20)
-
+    print_text("Громкость звука", w * 0.35, h * 0.35, 20, (200, 200, 200))
     game = True
     while game:
         for event in pygame.event.get():
