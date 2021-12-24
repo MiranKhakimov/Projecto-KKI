@@ -58,6 +58,7 @@ for i in range(22):
 
 print(w, h)
 bg = pygame.transform.scale(bg, (w, h))
+settings_bg = pygame.transform.scale(settings_bg, (w, h))
 edging = pygame.transform.scale(edging, (int(w * 0.109), int(h * 0.296)))
 print((int(w * 0.109), int(h * 0.296)))
 ur_at_point = pygame.transform.scale(ur_at_point, (int(w * 0.109), int(w * 0.109)))
@@ -91,6 +92,8 @@ pos_abil = 0
 koeff_ur = 1
 koeff_his = 1
 
+pymixer.load("{}".format(bg_music[4]))
+pymixer.play(loops=-1)
 
 class Button:
     def __init__(self, width, height, x, y, message, x_m, y_m, font=20, font_color=(0, 0, 0)):
@@ -105,7 +108,6 @@ class Button:
         self.x_m = x_m
         self.y_m = y_m
         self.font = font
-
 
     def draw_close(self):
         mouse = pygame.mouse.get_pos()
@@ -1359,15 +1361,14 @@ def death_anim():
 
 
 def run_menu():
-    pymixer.load("{}".format(bg_music[index]))
-    pymixer.play()
+    pymixer.set_volume(0.5)
     screen.blit(bg, (0, 0))
     game = True
     button_start = Button(180, 50, w // 2 - 90, h * 0.3, "В бой!", w * 0.478, h * 0.321, 21)
-    button = Button(180, 50, w // 2 - 90, h * 0.6, "Акоп", w * 0.485, h * 0.621, 20)
+    button_exit = Button(180, 50, w // 2 - 90, h * 0.6, "Акоп", w * 0.485, h * 0.621, 20)
     button_settings = Button(180, 50, w // 2 - 90, h * 0.45, "Настройки", w * 0.462, h * 0.471, 20)
     while game:
-        button.draw_close()
+        button_exit.draw_close()
         button_start.draw_start()
         button_settings.draw_settings()
         for event in pygame.event.get():
@@ -1378,10 +1379,12 @@ def run_menu():
 
 
 def run_settings():
-    screen.blit(bg, (0, 0))
-    print_text("Громкость звука", w * 0.35, h * 0.35, 20, (200, 200, 200))
+    button = Button(30, 30, w - 30, 0, "X", w - 22, 9, 20)
+    screen.blit(settings_bg, (0, 0))
+    print_text("Громкость звука", w * 0.07, h * 0.29, 40, (200, 200, 200))
     game = True
     while game:
+        button.draw_back()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
