@@ -35,6 +35,7 @@ card_show = butt
 sword_attack = []
 pentagram = []
 
+index = 0
 pymixer = pygame.mixer.music
 bg_music = ["Trapper.mp3", "Artileria.mp3", "Burzum-1.mp3",
             "Burzum-2.mp3", "Burzum-3.mp3", "Burzum-4.mp3",
@@ -1341,7 +1342,8 @@ def death_anim():
 
 
 def run_menu():
-    # pygame.mixer.Sound.play(bg_music[index])
+    pymixer.load("{}".format(bg_music[index]))
+    pymixer.play()
     screen.blit(bg, (0, 0))
     game = True
     button_start = Button(180, 50, w // 2 - 90, h * 0.3, "В бой!", w * 0.478, h * 0.321, 21)
