@@ -109,6 +109,7 @@ koeff_his = 1
 pymixer.load("{}".format(bg_music[index]))
 pymixer.play(loops=-1)
 
+
 class Button:
     def __init__(self, width, height, x, y, message, x_m, y_m, font=text_size, font_color=(0, 0, 0)):
         self.font_color = font_color
