@@ -14,6 +14,7 @@ cur = con.cursor()
 size = 600, 600
 
 bg = pygame.image.load("bg_black.jpg")
+menu_plate = pygame.image.load("menu_plate.png")
 butt = pygame.image.load("butt_pic.png")
 butt_pres = pygame.image.load("butt_clicked.png")
 slot_card = pygame.image.load("slot_card.png")
@@ -72,9 +73,9 @@ for i in range(6):
 
 print(w, h)
 bg = pygame.transform.scale(bg, (w, h))
+menu_plate = pygame.transform.scale(menu_plate, (int(w * 0.292), int(h * 0.687)))
 settings_bg = pygame.transform.scale(settings_bg, (w, h))
 edging = pygame.transform.scale(edging, (int(w * 0.109), int(h * 0.296)))
-print((int(w * 0.109), int(h * 0.296)))
 ur_at_point = pygame.transform.scale(ur_at_point, (int(w * 0.109), int(w * 0.109)))
 his_at_point = pygame.transform.scale(his_at_point, (int(w * 0.109), int(w * 0.109)))
 his_more = pygame.transform.scale(his_more, (int(w * 0.072), int(w * 0.072)))
@@ -1424,6 +1425,7 @@ def death_anim():
 def run_menu():
     pymixer.set_volume(0.5)
     screen.blit(bg, (0, 0))
+    screen.blit(menu_plate, (w // 2 - int(w * 0.292) // 2, h // 2 - int(h * 0.687) // 2))
     game = True
     button_start = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.3, "В бой!", w * 0.478, h * 0.321, int(text_size * 1.05))
     button_exit = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.6, "Акоп", w * 0.485, h * 0.621, text_size)
