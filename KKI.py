@@ -66,6 +66,7 @@ for i in range(22):
 
 for i in range(6):
     photo = pygame.image.load("sound_bar_{}.png".format(i))
+    photo = pygame.transform.scale(photo, (int(w * 0.31), int(h * 0.185)))
     volume_bar.append(photo)
 
 
@@ -1439,12 +1440,12 @@ def run_menu():
 
 def run_settings():
     button = Button(30, 30, w - 30, 0, "X", w - 22, 9, text_size)
-    change_music = SettingsButton(272, 528, 982, 611)
-    change_volume = SettingsButton(496, 252, 882, 371)
+    change_music = SettingsButton(int(w * 0.141), int(h * 0.488), int(w * 0.511), int(h * 0.565))
+    change_volume = SettingsButton(int(w * 0.258), int(h * 0.23), int(w * 0.568), int(h * 0.415))
     game = True
     while game:
         screen.blit(settings_bg, (0, 0))
-        screen.blit(volume_bar[volume_index], (496, 252))
+        screen.blit(volume_bar[volume_index], (int(w * 0.258), int(h * 0.23)))
         print_text("Громкость звука", w * 0.07, h * 0.29, int(text_size * 1.6), (200, 200, 200))
         print_text('Кликните на название, чтобы изменить музыку', w * 0.07, h * 0.43, int(text_size * 1.25), (200, 200, 200))
         print_text('Играет:', w * 0.07, h * 0.51, int(text_size * 1.25), (200, 200, 200))
