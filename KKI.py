@@ -1424,9 +1424,9 @@ def run_menu():
     pymixer.set_volume(0.5)
     screen.blit(bg, (0, 0))
     game = True
-    button_start = Button(180, 50, w // 2 - 90, h * 0.3, "В бой!", w * 0.478, h * 0.321, int(text_size * 1.05))
-    button_exit = Button(180, 50, w // 2 - 90, h * 0.6, "Акоп", w * 0.485, h * 0.621, text_size)
-    button_settings = Button(180, 50, w // 2 - 90, h * 0.45, "Настройки", w * 0.462, h * 0.471, text_size)
+    button_start = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.3, "В бой!", w * 0.478, h * 0.321, int(text_size * 1.05))
+    button_exit = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.6, "Акоп", w * 0.485, h * 0.621, text_size)
+    button_settings = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.45, "Настройки", w * 0.462, h * 0.471, text_size)
     while game:
         button_exit.draw_close()
         button_start.draw_start()
@@ -1439,17 +1439,17 @@ def run_menu():
 
 
 def run_settings():
-    button = Button(30, 30, w - 30, 0, "X", w - 22, 9, text_size)
+    button = Button(int(w * 0.021), int(h * 0.039), w - int(w * 0.021), 0, "X", w - int(w * 0.016), int(h * 0.0117), text_size)
     change_music = SettingsButton(int(w * 0.141), int(h * 0.488), int(w * 0.511), int(h * 0.565))
     change_volume = SettingsButton(int(w * 0.258), int(h * 0.23), int(w * 0.568), int(h * 0.415))
     game = True
     while game:
         screen.blit(settings_bg, (0, 0))
         screen.blit(volume_bar[volume_index], (int(w * 0.258), int(h * 0.23)))
-        print_text("Громкость звука", w * 0.07, h * 0.29, int(text_size * 1.6), (200, 200, 200))
-        print_text('Кликните на название, чтобы изменить музыку', w * 0.07, h * 0.43, int(text_size * 1.25), (200, 200, 200))
-        print_text('Играет:', w * 0.07, h * 0.51, int(text_size * 1.25), (200, 200, 200))
-        print_text(bg_music_index[index], w * 0.15, h * 0.51, int(text_size * 1.25), (200, 200, 200))
+        print_text("Громкость звука", int(w * 0.07), int(h * 0.29), int(text_size * 1.6), (200, 200, 200))
+        print_text('Кликните на название, чтобы изменить музыку', int(w * 0.07), int(h * 0.43), int(text_size * 1.25), (200, 200, 200))
+        print_text('Играет:', int(w * 0.07), int(h * 0.51), int(text_size * 1.25), (200, 200, 200))
+        print_text(bg_music_index[index], int(w * 0.15), int(h * 0.51), int(text_size * 1.25), (200, 200, 200))
         button.draw_back()
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -1467,9 +1467,10 @@ def run_game():
     while game:
         if func_choice == 0:
             table_create()
-            button = Button(60, 30, w - 60, int(h / 2) - 30, "Turn", w - 50, int(h / 2) - 22, text_size)
+            button = Button(int(w * 0.044), int(h * 0.039), w - int(w * 0.044), int(h / 2) - int(h * 0.039),
+                            "Turn", w - int(w * 0.036), int(h / 2) - int(h * 0.028), text_size)
             button.draw_turn()
-            button = Button(30, 30, w - 30, 0, "X", w - 22, 9, text_size)
+            button = Button(int(w * 0.022), int(h * 0.039), w - int(w * 0.022), 0, "X", w - int(w * 0.016), int(h * 0.011), text_size)
             button.draw_back()
             table_active()
         elif func_choice == 2:
