@@ -32,6 +32,10 @@ pygame.display.flip()
 w, h = pygame.display.get_surface().get_size()
 
 card_show = butt
+display_diametr = int((w ** 2 + h ** 2) ** 0.5)
+print(display_diametr)
+text_size = int(display_diametr * 0.013)
+print(text_size)
 
 sword_attack = []
 pentagram = []
@@ -105,7 +109,7 @@ pymixer.load("{}".format(bg_music[index]))
 pymixer.play(loops=-1)
 
 class Button:
-    def __init__(self, width, height, x, y, message, x_m, y_m, font=20, font_color=(0, 0, 0)):
+    def __init__(self, width, height, x, y, message, x_m, y_m, font=text_size, font_color=(0, 0, 0)):
         self.font_color = font_color
         self.width = width
         self.height = height
@@ -297,18 +301,18 @@ def table_create():
                 result_2 = cur.execute(do_1).fetchall()[0][0]
                 if len(str(result_2)) == 1:
                     print_text(str(result_2), start[0] + (int(w * 0.109) + int(w * 0.0043)) * (i + 1) - int(w * 0.0183),
-                               start[1] + int(h * 0.296) - int(h * 0.026), 16)
+                               start[1] + int(h * 0.296) - int(h * 0.026), int(text_size * 0.8))
                 else:
                     print_text(str(result_2), start[0] + (int(w * 0.109) + int(w * 0.0043)) * (i + 1) - int(w * 0.0204),
-                               start[1] + int(h * 0.296) - int(h * 0.026), 16)
+                               start[1] + int(h * 0.296) - int(h * 0.026), int(text_size * 0.8))
                 do_2 = """SELECT attack from gaming_table where slot = 'his_{}'""".format(i + 1)
                 result_2 = cur.execute(do_2).fetchall()[0][0]
                 if len(str(result_2)) == 1:
                     print_text(str(result_2), start[0] + (int(w * 0.109) + int(w * 0.0043)) * (i) + int(w * 0.008),
-                               start[1] + int(h * 0.296) - int(h * 0.026), 16)
+                               start[1] + int(h * 0.296) - int(h * 0.026), int(text_size * 0.8))
                 else:
                     print_text(str(result_2), start[0] + (int(w * 0.109) + int(w * 0.0043)) * (i) + int(w * 0.0058),
-                               start[1] + int(h * 0.296) - int(h * 0.026), 16)
+                               start[1] + int(h * 0.296) - int(h * 0.026), int(text_size * 0.8))
             else:
                 coord = start[0] + i * (int(w * 0.109) + int(w * 0.0043)), start[1]
                 if death_cache_1[i] == 1:
@@ -319,18 +323,18 @@ def table_create():
                 result_2 = cur.execute(do_1).fetchall()[0][0]
                 if len(str(result_2)) == 1:
                     print_text(str(result_2), start[0] + (int(w * 0.109) + int(w * 0.0043)) * (i + 1) - int(w * 0.0183),
-                               start[1] + int(h * 0.296) - int(h * 0.026), 16)
+                               start[1] + int(h * 0.296) - int(h * 0.026), int(text_size * 0.8))
                 else:
                     print_text(str(result_2), start[0] + (int(w * 0.109) + int(w * 0.0043)) * (i + 1) - int(w * 0.0204),
-                               start[1] + int(h * 0.296) - int(h * 0.026), 16)
+                               start[1] + int(h * 0.296) - int(h * 0.026), int(text_size * 0.8))
                 do_2 = """SELECT attack from gaming_table where slot = 'his_{}'""".format(i + 1)
                 result_2 = cur.execute(do_2).fetchall()[0][0]
                 if len(str(result_2)) == 1:
                     print_text(str(result_2), start[0] + (int(w * 0.109) + int(w * 0.0043)) * (i) + int(w * 0.008),
-                               start[1] + int(h * 0.296) - int(h * 0.026), 16)
+                               start[1] + int(h * 0.296) - int(h * 0.026), int(text_size * 0.8))
                 else:
                     print_text(str(result_2), start[0] + (int(w * 0.109) + int(w * 0.0043)) * (i) + int(w * 0.0058),
-                               start[1] + int(h * 0.296) - int(h * 0.026), 16)
+                               start[1] + int(h * 0.296) - int(h * 0.026), int(text_size * 0.8))
     for i in range(4):
         global cache_2
         do = """SELECT data FROM gaming_table WHERE slot = 'ur_{}' """.format(i + 1)
@@ -360,18 +364,18 @@ def table_create():
                 result_2 = cur.execute(do_1).fetchall()[0][0]
                 if len(str(result_2)) == 1:
                     print_text(str(result_2), start[0] + (int(w * 0.109) + int(w * 0.0043)) * (i + 1) - int(w * 0.0183),
-                               start[1] + int(h * 0.296) * 2 - int(h * 0.0182), 16)
+                               start[1] + int(h * 0.296) * 2 - int(h * 0.0182), int(text_size * 0.8))
                 else:
                     print_text(str(result_2), start[0] + (int(w * 0.109) + int(w * 0.0043)) * (i + 1) - int(w * 0.0204),
-                               start[1] + int(h * 0.296) * 2 - int(h * 0.0182), 16)
+                               start[1] + int(h * 0.296) * 2 - int(h * 0.0182), int(text_size * 0.8))
                 do_2 = """SELECT attack from gaming_table where slot = 'ur_{}'""".format(i + 1)
                 result_2 = cur.execute(do_2).fetchall()[0][0]
                 if len(str(result_2)) == 1:
                     print_text(str(result_2), start[0] + (int(w * 0.109) + int(w * 0.0043)) * (i) + int(w * 0.008),
-                               start[1] + int(h * 0.296) * 2 - int(h * 0.0182), 16)
+                               start[1] + int(h * 0.296) * 2 - int(h * 0.0182), int(text_size * 0.8))
                 else:
                     print_text(str(result_2), start[0] + (int(w * 0.109) + int(w * 0.0043)) * (i) + int(w * 0.0058),
-                               start[1] + int(h * 0.296) * 2 - int(h * 0.0182), 16)
+                               start[1] + int(h * 0.296) * 2 - int(h * 0.0182), int(text_size * 0.8))
             else:
                 coord = start[0] + i * (int(w * 0.109) + int(w * 0.0043)), start[1] + (int(h * 0.296) + int(h * 0.0078))
                 if death_cache_2[i] == 1:
@@ -382,18 +386,18 @@ def table_create():
                 result_2 = cur.execute(do_1).fetchall()[0][0]
                 if len(str(result_2)) == 1:
                     print_text(str(result_2), start[0] + (int(w * 0.109) + int(w * 0.0043)) * (i + 1) - int(w * 0.0183),
-                               start[1] + int(h * 0.296) * 2 - int(h * 0.0182), 16)
+                               start[1] + int(h * 0.296) * 2 - int(h * 0.0182), int(text_size * 0.8))
                 else:
                     print_text(str(result_2), start[0] + (int(w * 0.109) + int(w * 0.0043)) * (i + 1) - int(w * 0.0204),
-                               start[1] + int(h * 0.296) * 2 - int(h * 0.0182), 16)
+                               start[1] + int(h * 0.296) * 2 - int(h * 0.0182), int(text_size * 0.8))
                 do_2 = """SELECT attack from gaming_table where slot = 'ur_{}'""".format(i + 1)
                 result_2 = cur.execute(do_2).fetchall()[0][0]
                 if len(str(result_2)) == 1:
                     print_text(str(result_2), start[0] + (int(w * 0.109) + int(w * 0.0043)) * (i) + int(w * 0.008),
-                               start[1] + int(h * 0.296) * 2 - int(h * 0.0182), 16)
+                               start[1] + int(h * 0.296) * 2 - int(h * 0.0182), int(text_size * 0.8))
                 else:
                     print_text(str(result_2), start[0] + (int(w * 0.109) + int(w * 0.0043)) * (i) + int(w * 0.0058),
-                               start[1] + int(h * 0.296) * 2 - int(h * 0.0182), 16)
+                               start[1] + int(h * 0.296) * 2 - int(h * 0.0182), int(text_size * 0.8))
     start = int(w / 2 - int(w * 0.0065) - 2 * int(w * 0.136)), int(h / 2 + int(h * 0.37) - int(h * 0.0195))
     for i in range(4):
         global cache_3, cache_hold
@@ -428,19 +432,19 @@ def table_create():
     pers_at1 = cur.execute(p_at1).fetchall()[0][0]
     pers_at2 = cur.execute(p_at2).fetchall()[0][0]
     if len(str(pers_at1)) == 1:
-        print_text(str(pers_at1), int(w / 2) + int(w * 0.131) * 2, int(h / 2) - int(h * 0.296 / 2) - int(w * 0.105 / 4), 60)
+        print_text(str(pers_at1), int(w / 2) + int(w * 0.131) * 2, int(h / 2) - int(h * 0.296 / 2) - int(w * 0.105 / 4), int(text_size * 3))
     elif len(str(pers_at1)) == 2:
-        print_text(str(pers_at1), int(w / 2) + int(w * 0.125) * 2, int(h / 2) - int(h * 0.296 / 2) - int(w * 0.105 / 4), 60)
+        print_text(str(pers_at1), int(w / 2) + int(w * 0.125) * 2, int(h / 2) - int(h * 0.296 / 2) - int(w * 0.105 / 4), int(text_size * 3))
     else:
         print_text(str(pers_at1), int(w / 2) + int(w * 0.120) * 2, int(h / 2) - int(h * 0.296 / 2) - int(w * 0.105 / 4),
-                   60)
+                   int(text_size * 3))
     if len(str(pers_at2)) == 1:
-        print_text(str(pers_at2), int(w / 2) + int(w * 0.131) * 2, int(h / 2) + int(h * 0.296 / 2) - int(w * 0.105 / 4), 60)
+        print_text(str(pers_at2), int(w / 2) + int(w * 0.131) * 2, int(h / 2) + int(h * 0.296 / 2) - int(w * 0.105 / 4), int(text_size * 3))
     elif len(str(pers_at2)) == 2:
-        print_text(str(pers_at2), int(w / 2) + int(w * 0.125) * 2, int(h / 2) + int(h * 0.296 / 2) - int(w * 0.105 / 4), 60)
+        print_text(str(pers_at2), int(w / 2) + int(w * 0.125) * 2, int(h / 2) + int(h * 0.296 / 2) - int(w * 0.105 / 4), int(text_size * 3))
     else:
         print_text(str(pers_at2), int(w / 2) + int(w * 0.120) * 2, int(h / 2) + int(h * 0.296 / 2) - int(w * 0.105 / 4),
-                   60)
+                   int(text_size * 3))
     if pers_at1 == pers_at2:
         screen.blit(equals, (int(w / 2) + int(w * 0.109) * 2 + int(w * 0.032),
                              int(h / 2) - int(w * 0.072 / 2)))
@@ -448,12 +452,12 @@ def table_create():
         screen.blit(his_more, (int(w / 2) + int(w * 0.109) * 2 + int(w * 0.032),
                              int(h / 2) - int(w * 0.072 / 2)))
         print_text("{}".format(pers_at1 - pers_at2), int(w / 2) + int(w * 0.109) * 2 + int(w * 0.075),
-                                                      int(h / 2) - int(w * 0.015), 50, (255, 255, 255))
+                                                      int(h / 2) - int(w * 0.015), int(text_size * 2.5), (255, 255, 255))
     if pers_at1 < pers_at2:
         screen.blit(ur_more, (int(w / 2) + int(w * 0.109) * 2 + int(w * 0.032),
                              int(h / 2) - int(w * 0.072 / 2)))
         print_text("{}".format(pers_at2 - pers_at1), int(w / 2) + int(w * 0.109) * 2 + int(w * 0.075),
-                   int(h / 2) - int(w * 0.015), 50, (255, 255, 255))
+                   int(h / 2) - int(w * 0.015), int(text_size * 2.5), (255, 255, 255))
 
 
 def table_active():
@@ -1419,9 +1423,9 @@ def run_menu():
     pymixer.set_volume(0.5)
     screen.blit(bg, (0, 0))
     game = True
-    button_start = Button(180, 50, w // 2 - 90, h * 0.3, "В бой!", w * 0.478, h * 0.321, 21)
-    button_exit = Button(180, 50, w // 2 - 90, h * 0.6, "Акоп", w * 0.485, h * 0.621, 20)
-    button_settings = Button(180, 50, w // 2 - 90, h * 0.45, "Настройки", w * 0.462, h * 0.471, 20)
+    button_start = Button(180, 50, w // 2 - 90, h * 0.3, "В бой!", w * 0.478, h * 0.321, int(text_size * 1.05))
+    button_exit = Button(180, 50, w // 2 - 90, h * 0.6, "Акоп", w * 0.485, h * 0.621, text_size)
+    button_settings = Button(180, 50, w // 2 - 90, h * 0.45, "Настройки", w * 0.462, h * 0.471, text_size)
     while game:
         button_exit.draw_close()
         button_start.draw_start()
@@ -1434,17 +1438,17 @@ def run_menu():
 
 
 def run_settings():
-    button = Button(30, 30, w - 30, 0, "X", w - 22, 9, 20)
+    button = Button(30, 30, w - 30, 0, "X", w - 22, 9, text_size)
     change_music = SettingsButton(272, 528, 982, 611)
     change_volume = SettingsButton(496, 252, 882, 371)
     game = True
     while game:
         screen.blit(settings_bg, (0, 0))
         screen.blit(volume_bar[volume_index], (496, 252))
-        print_text("Громкость звука", w * 0.07, h * 0.29, 40, (200, 200, 200))
-        print_text('Кликните на название, чтобы изменить музыку', w * 0.07, h * 0.43, 35, (200, 200, 200))
-        print_text('Играет:', w * 0.07, h * 0.51, 35, (200, 200, 200))
-        print_text(bg_music_index[index], w * 0.15, h * 0.51, 35, (200, 200, 200))
+        print_text("Громкость звука", w * 0.07, h * 0.29, int(text_size * 1.6), (200, 200, 200))
+        print_text('Кликните на название, чтобы изменить музыку', w * 0.07, h * 0.43, int(text_size * 1.25), (200, 200, 200))
+        print_text('Играет:', w * 0.07, h * 0.51, int(text_size * 1.25), (200, 200, 200))
+        print_text(bg_music_index[index], w * 0.15, h * 0.51, int(text_size * 1.25), (200, 200, 200))
         button.draw_back()
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -1462,9 +1466,9 @@ def run_game():
     while game:
         if func_choice == 0:
             table_create()
-            button = Button(60, 30, w - 60, int(h / 2) - 30, "Turn", w - 50, int(h / 2) - 22, 20)
+            button = Button(60, 30, w - 60, int(h / 2) - 30, "Turn", w - 50, int(h / 2) - 22, text_size)
             button.draw_turn()
-            button = Button(30, 30, w - 30, 0, "X", w - 22, 9, 20)
+            button = Button(30, 30, w - 30, 0, "X", w - 22, 9, text_size)
             button.draw_back()
             table_active()
         elif func_choice == 2:
