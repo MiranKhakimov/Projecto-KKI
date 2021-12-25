@@ -37,6 +37,9 @@ sword_attack = []
 pentagram = []
 
 index = 0
+volume_bar = []
+volume_index = 5
+volume = 1
 pymixer = pygame.mixer.music
 bg_music = ["Trapper.mp3", "Artileria.mp3", "Burzum-2.mp3",
             "Burzum-3.mp3", "Burzum-4.mp3", "Burzum-5.mp3",
@@ -56,6 +59,11 @@ for i in range(22):
     photo = pygame.image.load("pent_{}.png".format(i + 1))
     photo = pygame.transform.scale(photo, (int(w * 0.109), int(w * 0.109)))
     pentagram.append(photo)
+
+for i in range(6):
+    photo = pygame.image.load("sound_bar_{}.png".format(i))
+    volume_bar.append(photo)
+
 
 print(w, h)
 bg = pygame.transform.scale(bg, (w, h))
@@ -205,6 +213,26 @@ class SettingsButton:
                     index = len(bg_music_index) - 1
                 pymixer.load("{}".format(bg_music[index]))
                 pymixer.play(loops=-1)
+
+    def volume_change(self):
+        global volume_index
+        global volume
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        if self.x1 <= mouse[0] <= self.x2 and self.y1 < mouse[1] < self.y2:
+            if click[0] == 1:
+                volume_index += 1
+                volume += 0.2
+                if volume_index >= len(volume_bar):
+                    volume_index = 0
+                    volume = 0
+            elif click[2] == 1:
+                volume_index -= 1
+                volume -= 0.2
+                if volume_index < 0:
+                    volume_index = len(volume_bar) - 1
+                    volume = 1
+            pymixer.set_volume(volume)
 
 
 def print_text(message, x, y, font_size, font_color=(0, 0, 0), font_type="Palatino Linotype.ttf"):
@@ -1408,9 +1436,11 @@ def run_menu():
 def run_settings():
     button = Button(30, 30, w - 30, 0, "X", w - 22, 9, 20)
     change_music = SettingsButton(272, 528, 982, 611)
+    change_volume = SettingsButton(496, 252, 882, 371)
     game = True
     while game:
         screen.blit(settings_bg, (0, 0))
+        screen.blit(volume_bar[volume_index], (496, 252))
         print_text("Громкость звука", w * 0.07, h * 0.29, 40, (200, 200, 200))
         print_text('Кликните на название, чтобы изменить музыку', w * 0.07, h * 0.43, 35, (200, 200, 200))
         print_text('Играет:', w * 0.07, h * 0.51, 35, (200, 200, 200))
@@ -1418,6 +1448,7 @@ def run_settings():
         button.draw_back()
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
+                change_volume.volume_change()
                 change_music.music_change()
             if event.type == pygame.QUIT:
                 pygame.quit()
