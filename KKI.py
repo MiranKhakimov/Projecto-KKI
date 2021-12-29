@@ -26,6 +26,7 @@ his_more = pygame.image.load("his_more.png")
 ur_more = pygame.image.load("ur_more.png")
 equals = pygame.image.load("equals.png")
 settings_bg = pygame.image.load("settings_bg.jpg")
+tupo_pent = pygame.image.load("pentagramus.png")
 attack_sound = pygame.mixer.Sound("attack_sound.mp3")
 
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -241,6 +242,12 @@ class SettingsButton:
                     volume = 1
             pymixer.set_volume(volume)
 
+    def open_inventory(self):
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        if self.x1 <= mouse[0] <= self.x2 and self.y1 < mouse[1] < self.y2:
+            if click[0] == 1:
+                run_inventory()
 
 def print_text(message, x, y, font_size, font_color=(0, 0, 0), font_type="Palatino Linotype.ttf"):
     font_type = pygame.font.Font(font_type, font_size)
@@ -1430,11 +1437,16 @@ def run_menu():
     button_start = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.3, "В бой!", w * 0.478, h * 0.321, int(text_size * 1.05))
     button_exit = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.6, "Акоп", w * 0.485, h * 0.621, text_size)
     button_settings = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.45, "Настройки", w * 0.462, h * 0.471, text_size)
+    button_inventory = SettingsButton(w // 2 - int(w * 0.023), h * 0.7445, w // 2 - int(w * 0.023) + int(h * 0.1), h * 0.7445 + int(h * 0.09))
     while game:
+        button_inventory.open_inventory()
         button_exit.draw_close()
         button_start.draw_start()
         button_settings.draw_settings()
         for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    run_menu()
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
@@ -1455,9 +1467,29 @@ def run_settings():
         print_text(bg_music_index[index], int(w * 0.15), int(h * 0.51), int(text_size * 1.25), (200, 200, 200))
         button.draw_back()
         for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    run_menu()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 change_volume.volume_change()
                 change_music.music_change()
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+        pygame.display.update()
+
+def run_inventory():
+    game = True
+    button = Button(int(w * 0.021), int(h * 0.039), w - int(w * 0.021), 0, "X", w - int(w * 0.016), int(h * 0.0117),
+                    text_size)
+    while game:
+        screen.blit(bg, (0, 0))
+        screen.blit(pygame.transform.scale(tupo_pent, (int(h * 0.7), int(h * 0.7))), (int(w // 2) - int(h * 0.7 * 0.5), int(h // 2) - int(h * 0.7 * 0.5)))
+        button.draw_back()
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    run_menu()
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
@@ -1492,6 +1524,9 @@ def run_game():
         elif func_choice == 28:
             silencer(pos_abil)
         for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    run_menu()
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
