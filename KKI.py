@@ -14,6 +14,8 @@ cur = con.cursor()
 size = 600, 600
 
 bg = pygame.image.load("bg_black.jpg")
+card_back = pygame.image.load("card_back.png")
+bestiary = pygame.image.load("bestiary.PNG")
 menu_plate = pygame.image.load("menu_plate.png")
 butt = pygame.image.load("butt_pic.png")
 butt_pres = pygame.image.load("butt_clicked.png")
@@ -196,6 +198,19 @@ class Button:
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
+    def opening_lootbox(self):
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        if self.x <= int(mouse[0]) <= int(self.x + self.width) and self.y < int(mouse[1]) < self.y + self.height:
+            cache = pygame.transform.scale(butt_pres, (self.width, self.height))
+            screen.blit(cache, (self.x, self.y))
+            if click[0] == 1:
+                lootbox_opens()
+        else:
+            cache = pygame.transform.scale(butt, (self.width, self.height))
+            screen.blit(cache, (self.x, self.y))
+        print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
+
 
 class SettingsButton:
     def __init__(self, x1, y1, x2, y2):
@@ -242,18 +257,60 @@ class SettingsButton:
                     volume = 1
             pymixer.set_volume(volume)
 
-    def open_inventory(self):
+    def open_lootbox(self):
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if self.x1 <= mouse[0] <= self.x2 and self.y1 < mouse[1] < self.y2:
             if click[0] == 1:
-                run_inventory()
+                run_lootbox()
+
 
 def print_text(message, x, y, font_size, font_color=(0, 0, 0), font_type="Palatino Linotype.ttf"):
     font_type = pygame.font.Font(font_type, font_size)
     text = font_type.render(message, True, font_color)
     screen.blit(text, (x, y))
 
+drop = []
+
+def lootbox_opens():
+    global drop
+    drop = []
+    for i in range(4):
+        card = 0
+        x = True
+        while x:
+            x = False
+            card = random.randint(1, 30)
+            if card in drop:
+                x = True
+            elif card == 26 or card == 27:
+                x = True
+            do = """SELECT data FROM inventory WHERE name = {}""".format(card)
+            print(card)
+            kolvo = cur.execute(do).fetchall()[0][0]
+            if kolvo >= 2:
+                x = True
+        do = """SELECT name FROM cards WHERE key = {}""".format(card)
+        name = cur.execute(do).fetchall()[0][0]
+        photo = pygame.image.load("{}.png".format(name))
+        photo = pygame.transform.scale(photo, (int(w * 0.109), int(h * 0.296)))
+        drop.append(card)
+        drop.append(photo)
+    for i in range(21):
+        screen.blit(bg, (0, 0))
+        screen.blit(pygame.transform.scale(tupo_pent, (int(h * 0.7), int(h * 0.7))),
+                    (int(w // 2) - int(h * 0.7 * 0.5), int(h // 2) - int(h * 0.7 * 0.5)))
+        screen.blit(drop[1], (int(w // 2) - int(w * 0.109 * 0.5) - i * int(w * 0.17 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.255 / 21)))
+        screen.blit(drop[3], (int(w // 2) - int(w * 0.109 * 0.5) + i * int(w * 0.17 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.255 / 21)))
+        screen.blit(drop[5], (int(w // 2) - int(w * 0.109 * 0.5) - i * int(w * 0.118 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.625 / 21)))
+        screen.blit(drop[7], (int(w // 2) - int(w * 0.109 * 0.5) + i * int(w * 0.118 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.625 / 21)))
+        pygame.draw.rect(screen, "white", (
+        int(w // 2) - int(w * 0.109 * 0.5) - 5, int(h // 2) - int(h * 0.47) - 5, int(w * 0.109) + 10,
+        int(h * 0.296) + 10))
+        screen.blit(pygame.transform.scale(bestiary, (int(w * 0.109), int(h * 0.296))),
+                    (int(w // 2) - int(w * 0.109 * 0.5), int(h // 2) - int(h * 0.47)))
+        pygame.display.update()
+    time.sleep(1)
 
 def table_restart():
     global cache_1, cache_2, cache_3, cache_hold, coord_slots_hand, coord_slots, card_places
@@ -1439,7 +1496,7 @@ def run_menu():
     button_settings = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.45, "Настройки", w * 0.462, h * 0.471, text_size)
     button_inventory = SettingsButton(w // 2 - int(w * 0.023), h * 0.7445, w // 2 - int(w * 0.023) + int(h * 0.1), h * 0.7445 + int(h * 0.09))
     while game:
-        button_inventory.open_inventory()
+        button_inventory.open_lootbox()
         button_exit.draw_close()
         button_start.draw_start()
         button_settings.draw_settings()
@@ -1478,14 +1535,20 @@ def run_settings():
                 quit()
         pygame.display.update()
 
-def run_inventory():
+def run_lootbox():
     game = True
     button = Button(int(w * 0.021), int(h * 0.039), w - int(w * 0.021), 0, "X", w - int(w * 0.016), int(h * 0.0117),
+                    text_size)
+    open_button = Button(int(w * 0.09), int(h * 0.055), int(w // 2) - int(w * 0.045), int(h * 0.9), "100 Монет", int(w // 2) - int(w * 0.035), int(h * 0.919),
                     text_size)
     while game:
         screen.blit(bg, (0, 0))
         screen.blit(pygame.transform.scale(tupo_pent, (int(h * 0.7), int(h * 0.7))), (int(w // 2) - int(h * 0.7 * 0.5), int(h // 2) - int(h * 0.7 * 0.5)))
+        pygame.draw.rect(screen, "white", (int(w // 2) - int(w * 0.109 * 0.5) - 5, int(h // 2) - int(h * 0.47) - 5, int(w * 0.109) + 10, int(h * 0.296) + 10))
+        screen.blit(pygame.transform.scale(bestiary, (int(w * 0.109), int(h * 0.296))), (int(w // 2) - int(w * 0.109 * 0.5), int(h // 2) - int(h * 0.47)))
         button.draw_back()
+        open_button.opening_lootbox()
+
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
