@@ -274,43 +274,53 @@ drop = []
 
 def lootbox_opens():
     global drop
-    drop = []
-    for i in range(4):
-        card = 0
-        x = True
-        while x:
-            x = False
-            card = random.randint(1, 30)
-            if card in drop:
-                x = True
-            elif card == 26 or card == 27:
-                x = True
-            do = """SELECT data FROM inventory WHERE name = {}""".format(card)
-            print(card)
-            kolvo = cur.execute(do).fetchall()[0][0]
-            if kolvo >= 2:
-                x = True
-        do = """SELECT name FROM cards WHERE key = {}""".format(card)
-        name = cur.execute(do).fetchall()[0][0]
-        photo = pygame.image.load("{}.png".format(name))
-        photo = pygame.transform.scale(photo, (int(w * 0.109), int(h * 0.296)))
-        drop.append(card)
-        drop.append(photo)
-    for i in range(21):
-        screen.blit(bg, (0, 0))
-        screen.blit(pygame.transform.scale(tupo_pent, (int(h * 0.7), int(h * 0.7))),
-                    (int(w // 2) - int(h * 0.7 * 0.5), int(h // 2) - int(h * 0.7 * 0.5)))
-        screen.blit(drop[1], (int(w // 2) - int(w * 0.109 * 0.5) - i * int(w * 0.17 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.255 / 21)))
-        screen.blit(drop[3], (int(w // 2) - int(w * 0.109 * 0.5) + i * int(w * 0.17 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.255 / 21)))
-        screen.blit(drop[5], (int(w // 2) - int(w * 0.109 * 0.5) - i * int(w * 0.118 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.625 / 21)))
-        screen.blit(drop[7], (int(w // 2) - int(w * 0.109 * 0.5) + i * int(w * 0.118 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.625 / 21)))
-        pygame.draw.rect(screen, "white", (
-        int(w // 2) - int(w * 0.109 * 0.5) - 5, int(h // 2) - int(h * 0.47) - 5, int(w * 0.109) + 10,
-        int(h * 0.296) + 10))
-        screen.blit(pygame.transform.scale(bestiary, (int(w * 0.109), int(h * 0.296))),
-                    (int(w // 2) - int(w * 0.109 * 0.5), int(h // 2) - int(h * 0.47)))
-        pygame.display.update()
-    time.sleep(1)
+    do = """SELECT data FROM inventory WHERE name = 'money'"""
+    money = cur.execute(do).fetchall()[0][0]
+    if int(money) >= 100:
+        do = """UPDATE inventory SET data = {} WHERE name = 'money'""".format(int(money) - 100)
+        cur.execute(do)
+        drop = []
+        for i in range(4):
+            card = 0
+            x = True
+            while x:
+                x = False
+                card = random.randint(1, 30)
+                if card in drop:
+                    x = True
+                elif card == 26 or card == 27:
+                    x = True
+                do = """SELECT data FROM inventory WHERE name = {}""".format(card)
+                kolvo = cur.execute(do).fetchall()[0][0]
+                if kolvo >= 2:
+                    x = True
+            do = """SELECT name FROM cards WHERE key = {}""".format(card)
+            name = cur.execute(do).fetchall()[0][0]
+            photo = pygame.image.load("{}.png".format(name))
+            photo = pygame.transform.scale(photo, (int(w * 0.109), int(h * 0.296)))
+            drop.append(card)
+            drop.append(photo)
+        for i in range(21):
+            screen.blit(bg, (0, 0))
+            screen.blit(pygame.transform.scale(tupo_pent, (int(h * 0.7), int(h * 0.7))),
+                        (int(w // 2) - int(h * 0.7 * 0.5), int(h // 2) - int(h * 0.7 * 0.5)))
+            screen.blit(drop[1], (int(w // 2) - int(w * 0.109 * 0.5) - i * int(w * 0.17 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.255 / 21)))
+            screen.blit(drop[3], (int(w // 2) - int(w * 0.109 * 0.5) + i * int(w * 0.17 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.255 / 21)))
+            screen.blit(drop[5], (int(w // 2) - int(w * 0.109 * 0.5) - i * int(w * 0.118 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.625 / 21)))
+            screen.blit(drop[7], (int(w // 2) - int(w * 0.109 * 0.5) + i * int(w * 0.118 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.625 / 21)))
+            pygame.draw.rect(screen, "white", (
+            int(w // 2) - int(w * 0.109 * 0.5) - 5, int(h // 2) - int(h * 0.47) - 5, int(w * 0.109) + 10,
+            int(h * 0.296) + 10))
+            screen.blit(pygame.transform.scale(bestiary, (int(w * 0.109), int(h * 0.296))),
+                        (int(w // 2) - int(w * 0.109 * 0.5), int(h // 2) - int(h * 0.47)))
+            pygame.display.update()
+        for i in range(4):
+            do = """SELECT data FROM inventory WHERE name = {}""".format(drop[i * 2])
+            number = cur.execute(do).fetchall()[0][0]
+            do = """UPDATE inventory SET data = {} WHERE name = {}""".format(int(number) + 1, drop[i * 2])
+            cur.execute(do)
+        con.commit()
+        time.sleep(1)
 
 def table_restart():
     global cache_1, cache_2, cache_3, cache_hold, coord_slots_hand, coord_slots, card_places
