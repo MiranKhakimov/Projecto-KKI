@@ -296,7 +296,7 @@ def lootbox_opens():
                     x = True
             do = """SELECT name FROM cards WHERE key = {}""".format(card)
             name = cur.execute(do).fetchall()[0][0]
-            photo = pygame.image.load("{}.png".format(name))
+            photo = pygame.image.load("{}_stats.png".format(name))
             photo = pygame.transform.scale(photo, (int(w * 0.109), int(h * 0.296)))
             drop.append(card)
             drop.append(photo)
@@ -311,6 +311,7 @@ def lootbox_opens():
             pygame.draw.rect(screen, "white", (
             int(w // 2) - int(w * 0.109 * 0.5) - 5, int(h // 2) - int(h * 0.47) - 5, int(w * 0.109) + 10,
             int(h * 0.296) + 10))
+            print((int(w // 2) - int(w * 0.109 * 0.5) - i * int(w * 0.17 / 20), int(h // 2) - int(h * 0.47) + i * int(h * 0.255 / 20)))
             screen.blit(pygame.transform.scale(bestiary, (int(w * 0.109), int(h * 0.296))),
                         (int(w // 2) - int(w * 0.109 * 0.5), int(h // 2) - int(h * 0.47)))
             pygame.display.update()
@@ -319,7 +320,7 @@ def lootbox_opens():
             number = cur.execute(do).fetchall()[0][0]
             do = """UPDATE inventory SET data = {} WHERE name = {}""".format(int(number) + 1, drop[i * 2])
             cur.execute(do)
-        con.commit()
+        #con.commit()
         time.sleep(1)
 
 def table_restart():
@@ -1546,6 +1547,7 @@ def run_settings():
         pygame.display.update()
 
 def run_lootbox():
+    global drop
     game = True
     button = Button(int(w * 0.021), int(h * 0.039), w - int(w * 0.021), 0, "X", w - int(w * 0.016), int(h * 0.0117),
                     text_size)
@@ -1556,6 +1558,57 @@ def run_lootbox():
         screen.blit(pygame.transform.scale(tupo_pent, (int(h * 0.7), int(h * 0.7))), (int(w // 2) - int(h * 0.7 * 0.5), int(h // 2) - int(h * 0.7 * 0.5)))
         pygame.draw.rect(screen, "white", (int(w // 2) - int(w * 0.109 * 0.5) - 5, int(h // 2) - int(h * 0.47) - 5, int(w * 0.109) + 10, int(h * 0.296) + 10))
         screen.blit(pygame.transform.scale(bestiary, (int(w * 0.109), int(h * 0.296))), (int(w // 2) - int(w * 0.109 * 0.5), int(h // 2) - int(h * 0.47)))
+        if drop != []:
+            if drop[0] != 0:
+                coord_x = int(w // 2) - int(w * 0.109 * 0.5)
+                coord_y = int(h // 2) - int(h * 0.47)
+                dop_x = 20 * int(w * 0.17 / 21)
+                dop_y = 20 * int(h * 0.255 / 21)
+                dop_x_2 = 20 * int(w * 0.118 / 21)
+                dop_y_2 = 20 * int(h * 0.625 / 21)
+                shirina = int(w * 0.109)
+                visota = int(h * 0.296)
+                print(visota)
+                screen.blit(drop[1], (coord_x - dop_x,
+                                      coord_y + dop_y))
+                screen.blit(drop[3], (coord_x + dop_x,
+                                      coord_y + dop_y))
+                screen.blit(drop[5], (coord_x - dop_x_2,
+                                      coord_y + dop_y_2))
+                screen.blit(drop[7], (coord_x + dop_x_2,
+                                      coord_y + dop_y_2))
+                coord = pygame.mouse.get_pos()
+                if coord_x - dop_x <= coord[0] <= coord_x - dop_x + shirina:
+                    if coord_y + dop_y <= coord[1] <= coord_y + dop_y + visota:
+                        do = """SELECT name FROM cards WHERE key = {}""".format(drop[0])
+                        result = cur.execute(do).fetchall()[0][0]
+                        card_show = pygame.image.load("{}_stats.png".format(result))
+                        card_show = pygame.transform.scale(card_show, (int(w * 0.101) * 2.5, int(h * 0.278) * 2.5))
+                        screen.blit(card_show, (0, h / 2 - int(h * 0.278) * 1.25))
+                elif coord_x + dop_x <= coord[0] <= coord_x + dop_x + shirina:
+                    if coord_y + dop_y <= coord[1] <= coord_y + dop_y + visota:
+                        do = """SELECT name FROM cards WHERE key = {}""".format(drop[2])
+                        result = cur.execute(do).fetchall()[0][0]
+                        card_show = pygame.image.load("{}_stats.png".format(result))
+                        card_show = pygame.transform.scale(card_show, (int(w * 0.101) * 2.5, int(h * 0.278) * 2.5))
+                        screen.blit(card_show, (0, h / 2 - int(h * 0.278) * 1.25))
+                if coord_x - dop_x_2 <= coord[0] <= coord_x - dop_x_2 + shirina:
+                    if coord_y + dop_y_2 <= coord[1] <= coord_y + dop_y_2 + visota:
+                        do = """SELECT name FROM cards WHERE key = {}""".format(drop[4])
+                        result = cur.execute(do).fetchall()[0][0]
+                        card_show = pygame.image.load("{}_stats.png".format(result))
+                        card_show = pygame.transform.scale(card_show, (int(w * 0.101) * 2.5, int(h * 0.278) * 2.5))
+                        screen.blit(card_show, (0, h / 2 - int(h * 0.278) * 1.25))
+                elif coord_x + dop_x_2 <= coord[0] <= coord_x + dop_x_2 + shirina:
+                    if coord_y + dop_y_2 <= coord[1] <= coord_y + dop_y_2 + visota:
+                        do = """SELECT name FROM cards WHERE key = {}""".format(drop[6])
+                        result = cur.execute(do).fetchall()[0][0]
+                        card_show = pygame.image.load("{}_stats.png".format(result))
+                        card_show = pygame.transform.scale(card_show, (int(w * 0.101) * 2.5, int(h * 0.278) * 2.5))
+                        screen.blit(card_show, (0, h / 2 - int(h * 0.278) * 1.25))
+        mouse = pygame.mouse.get_pressed()
+        if mouse[0] == 1:
+            drop = []
         button.draw_back()
         open_button.opening_lootbox()
 
