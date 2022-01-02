@@ -211,6 +211,11 @@ class Button:
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
+    def otrisovka(self):
+        cache = pygame.transform.scale(butt, (self.width, self.height))
+        screen.blit(cache, (self.x, self.y))
+        print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
+
 
 class SettingsButton:
     def __init__(self, x1, y1, x2, y2):
@@ -1554,6 +1559,11 @@ def run_lootbox():
     open_button = Button(int(w * 0.09), int(h * 0.055), int(w // 2) - int(w * 0.045), int(h * 0.9), "100 Монет", int(w // 2) - int(w * 0.035), int(h * 0.919),
                     text_size)
     while game:
+        do = """SELECT data FROM inventory WHERE name = 'money'"""
+        coins = cur.execute(do).fetchall()[0][0]
+        money = Button(int(w * 0.04), int(h * 0.04), w - int(w * 0.045), int(h * 0.958),
+                       "Ваши монеты:   {}".format(coins), w - int(w * 0.15), int(h * 0.97),
+                       text_size, font_color=(255, 255, 255))
         screen.blit(bg, (0, 0))
         screen.blit(pygame.transform.scale(tupo_pent, (int(h * 0.7), int(h * 0.7))), (int(w // 2) - int(h * 0.7 * 0.5), int(h // 2) - int(h * 0.7 * 0.5)))
         pygame.draw.rect(screen, "white", (int(w // 2) - int(w * 0.109 * 0.5) - 5, int(h // 2) - int(h * 0.47) - 5, int(w * 0.109) + 10, int(h * 0.296) + 10))
@@ -1611,6 +1621,7 @@ def run_lootbox():
             drop = []
         button.draw_back()
         open_button.opening_lootbox()
+        money.otrisovka()
 
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
@@ -1660,5 +1671,4 @@ def run_game():
 
 
 run_menu()
-
 
