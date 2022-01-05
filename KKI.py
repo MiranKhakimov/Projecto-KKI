@@ -37,7 +37,6 @@ w, h = pygame.display.get_surface().get_size()
 
 card_show = butt
 display_diametr = int((w ** 2 + h ** 2) ** 0.5)
-print(display_diametr)
 text_size = int(display_diametr * 0.013)
 print(text_size)
 
