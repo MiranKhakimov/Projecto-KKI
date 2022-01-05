@@ -1614,7 +1614,6 @@ def death_anim():
 
 
 def run_menu():
-    pymixer.set_volume(0.5)
     screen.blit(bg, (0, 0))
     screen.blit(menu_plate, (w // 2 - int(w * 0.292) // 2, h // 2 - int(h * 0.687) // 2))
     game = True
