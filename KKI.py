@@ -11,7 +11,7 @@ con = sqlite3.connect("Game_base.db")
 cur = con.cursor()
 
 
-size = 600, 600
+size = 1000, 600
 
 bg = pygame.image.load("bg_black.jpg")
 card_back = pygame.image.load("card_back.png")
@@ -113,6 +113,15 @@ koeff_his = 1
 pymixer.load("{}".format(bg_music[index]))
 pymixer.play(loops=-1)
 
+card_list = []
+
+def return_cards(cards=[]):
+    global card_list
+    if cards == []:
+        return card_list
+    else:
+        card_list = cards
+
 
 class Button:
     def __init__(self, width, height, x, y, message, x_m, y_m, font=text_size, font_color=(0, 0, 0)):
@@ -179,6 +188,19 @@ class Button:
             screen.blit(cache, (self.x, self.y))
             if click[0] == 1:
                 run_settings()
+        else:
+            cache = pygame.transform.scale(butt, (self.width, self.height))
+            screen.blit(cache, (self.x, self.y))
+        print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
+
+    def draw_inventory(self):
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        if self.x <= int(mouse[0]) <= int(self.x + self.width) and self.y < int(mouse[1]) < self.y + self.height:
+            cache = pygame.transform.scale(butt_pres, (self.width, self.height))
+            screen.blit(cache, (self.x, self.y))
+            if click[0] == 1:
+                run_inventory()
         else:
             cache = pygame.transform.scale(butt, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
@@ -270,6 +292,80 @@ class SettingsButton:
                 run_lootbox()
 
 
+page_select = 0
+
+
+class PageInventory:
+    def __init__(self, kolvo_card, os_x, os_y, size, distance, cards, cards_index=None):
+        self.kolvo_card = kolvo_card
+        self.os_x = int(os_x)
+        self.os_y = int(os_y)
+        self.size = int(size)
+        self.distance = int(distance)
+        self.cards = cards
+        self.cards_index = cards_index
+
+    def click_verification(self):
+        mouse = pygame.mouse.get_pressed()
+        coords = pygame.mouse.get_pos()
+        pages = self.kolvo_card // 8
+        if self.kolvo_card / 8 >= pages:
+            pages += 1
+        for i in range(self.kolvo_card):
+            if int(self.os_x + i * (self.size + self.distance)) <= coords[0] <= int(self.os_x + self.size + i * (self.size + self.distance)) and self.os_y <= coords[1] <= int(self.os_y + self.size):
+                cache = pygame.transform.scale(butt_pres, (self.size, self.size))
+                screen.blit(cache, (self.os_x + i * (self.size + self.distance), self.os_y))
+                if mouse[0] == 1:
+                    PCB = PageInventory(pages, w // 2 * 0.7, h * 0.9, h * 0.05, h * 0.02, return_cards())
+                    PCB.page_select(i)
+            else:
+                cache = pygame.transform.scale(butt, (self.size, self.size))
+                screen.blit(cache, (self.os_x + i * (self.size + self.distance), self.os_y))
+            print_text(str(i + 1), self.os_x + self.os_x * 0.028 + i * (self.size + self.distance), self.os_y + self.os_y * 0.02, text_size)
+
+
+    def page_select(self, page=-1):
+        global page_select
+        if page == -1:
+            return page_select
+        else:
+            page_select = page
+
+    def draw_page(self, mouse_pos=False):
+        PCB = PageInventory(4, w // 2 * 0.7, h * 0.9, h * 0.05, h * 0.02, return_cards())
+        page = PCB.page_select()
+        if page * 8 >= self.kolvo_card:
+            end = -1
+        else:
+            end = page * 8 + 8
+        order = 0
+        mouse = pygame.mouse.get_pressed()
+        coord = pygame.mouse.get_pos()
+        indexes = self.cards_index[page * 8:end]
+        for i in self.cards[page * 8:end]:
+            dop_x = int(w * 0.14) * (order % 4)
+            dop_y = int(h * 0.42) * (order // 4)
+            screen.blit(i, (self.os_x + dop_x, self.os_y + dop_y))
+            if self.os_x + dop_x <= coord[0] <= self.os_x + dop_x + int(w * 0.14) and self.os_y + dop_y <= coord[1] <= self.os_y + dop_y + int(h * 0.42):
+                if mouse_pos:
+                    do = """SELECT data, in_deck FROM inventory WHERE name = {}""".format(indexes[order])
+                    in_inventory = cur.execute(do).fetchall()[0][0]
+                    in_deck = cur.execute(do).fetchall()[0][1]
+                    if in_deck == 0:
+                        in_deck += 1
+                    elif in_deck == 1:
+                        if in_inventory == 2:
+                            in_deck += 1
+                        else:
+                            in_deck = 0
+                    elif in_deck == 2:
+                        in_deck = 0
+                    do = """UPDATE inventory SET in_deck = {} WHERE name = {}""".format(in_deck, indexes[order])
+                    cur.execute(do)
+                    print(in_deck, "in deck", indexes[order], "card index")
+            order += 1
+
+
 def print_text(message, x, y, font_size, font_color=(0, 0, 0), font_type="Palatino Linotype.ttf"):
     font_type = pygame.font.Font(font_type, font_size)
     text = font_type.render(message, True, font_color)
@@ -351,8 +447,7 @@ def table_restart():
 
 def table_create():
     global death_coord_1, death_coord_2
-    start = int(w / 2 - int(w * 0.0065) - 2 * int(w * 0.109)), \
-            int(h / 2 - int(h * 0.0039) - int(h * 0.296))
+    start = int(w / 2 - int(w * 0.0065) - 2 * int(w * 0.109)), int(h / 2 - int(h * 0.0039) - int(h * 0.296))
     screen.blit(bg, (0, 0))
     global coord_slots
     for i in range(4):
@@ -1508,13 +1603,15 @@ def run_menu():
     screen.blit(menu_plate, (w // 2 - int(w * 0.292) // 2, h // 2 - int(h * 0.687) // 2))
     game = True
     button_start = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.3, "В бой!", w * 0.478, h * 0.321, int(text_size * 1.05))
+    button_inventory = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.4, "Инвентарь", w * 0.462, h * 0.421, text_size)
+    button_settings = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.5, "Настройки", w * 0.462, h * 0.521, text_size)
     button_exit = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.6, "Акоп", w * 0.485, h * 0.621, text_size)
-    button_settings = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.45, "Настройки", w * 0.462, h * 0.471, text_size)
-    button_inventory = SettingsButton(w // 2 - int(w * 0.023), h * 0.7445, w // 2 - int(w * 0.023) + int(h * 0.1), h * 0.7445 + int(h * 0.09))
+    button_lootbox = SettingsButton(w // 2 - int(w * 0.023), h * 0.7445, w // 2 - int(w * 0.023) + int(h * 0.1), h * 0.7445 + int(h * 0.09))
     while game:
-        button_inventory.open_lootbox()
+        button_lootbox.open_lootbox()
         button_exit.draw_close()
         button_start.draw_start()
+        button_inventory.draw_inventory()
         button_settings.draw_settings()
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
@@ -1525,6 +1622,40 @@ def run_menu():
                 quit()
         pygame.display.update()
 
+
+def run_inventory():
+    button = Button(int(w * 0.021), int(h * 0.039), w - int(w * 0.021), 0, "X", w - int(w * 0.016), int(h * 0.0117), text_size)
+    game = True
+    cache_invnt = []
+    cache_names = []
+    for i in range(30):
+        do = """SELECT data FROM inventory WHERE name = {}""".format(i + 1)
+        kolvo = cur.execute(do).fetchall()[0][0]
+        if kolvo >= 1:
+            do = """SELECT name FROM cards WHERE key = {}""".format(i + 1)
+            name = cur.execute(do).fetchall()[0][0]
+            photo = pygame.image.load("{}_stats.png".format(name))
+            photo = pygame.transform.scale(photo, (int(w * 0.14), int(h * 0.42)))
+            cache_names.append(i + 1)
+            cache_invnt.append(photo)
+    return_cards(cache_invnt)
+    pages = len(cache_invnt) // 8
+    if len(cache_invnt) / 8 >= pages:
+        pages += 1
+    PCB = PageInventory(pages, w // 2 * 0.7, h * 0.9, h * 0.05, h * 0.02, return_cards())
+    PCB_cards = PageInventory(len(cache_invnt), w * 0.05, h * 0.05, h * 0.05, h * 0.02, return_cards(), cache_names)
+    while game:
+        screen.blit(bg, (0, 0))
+        button.draw_back()
+        PCB_cards.draw_page()
+        PCB.click_verification()
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    run_menu()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                PCB_cards.draw_page(True)
+        pygame.display.update()
 
 def run_settings():
     button = Button(int(w * 0.021), int(h * 0.039), w - int(w * 0.021), 0, "X", w - int(w * 0.016), int(h * 0.0117), text_size)
@@ -1671,4 +1802,3 @@ def run_game():
 
 
 run_menu()
-
