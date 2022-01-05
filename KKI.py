@@ -304,7 +304,7 @@ class PageInventory:
         self.cards = cards
         self.cards_index = cards_index
 
-    def click_verification(self):
+    def page_select_button(self):
         mouse = pygame.mouse.get_pressed()
         coords = pygame.mouse.get_pos()
         pages = self.kolvo_card // 8
@@ -331,6 +331,7 @@ class PageInventory:
             page_select = page
 
     def draw_page(self, mouse_pos=False):
+        global kolvo_cards_in_deck
         PCB = PageInventory(4, w // 2 * 0.7, h * 0.9, h * 0.05, h * 0.02, return_cards())
         page = PCB.page_select()
         if page * 8 >= self.kolvo_card:
@@ -342,27 +343,45 @@ class PageInventory:
         coord = pygame.mouse.get_pos()
         indexes = self.cards_index[page * 8:end]
         for i in self.cards[page * 8:end]:
-            dop_x = int(w * 0.14) * (order % 4)
-            dop_y = int(h * 0.42) * (order // 4)
+            dop_x = int(w * 0.14 + w * 0.1) * (order % 4)
+            dop_y = int(h * 0.43) * (order // 4)
             screen.blit(i, (self.os_x + dop_x, self.os_y + dop_y))
+            do = """SELECT in_deck FROM inventory WHERE name = {}""".format(indexes[order])
+            print_text("- {}".format(cur.execute(do).fetchall()[0][0]), self.os_x + dop_x + int(w * 0.16), self.os_y + dop_y + int(h * 0.20), text_size * 4, font_color="white")
             if self.os_x + dop_x <= coord[0] <= self.os_x + dop_x + int(w * 0.14) and self.os_y + dop_y <= coord[1] <= self.os_y + dop_y + int(h * 0.42):
                 if mouse_pos:
+                    kolvo_cards_in_deck = 0
+                    for i in range(30):
+                        if i != 25 or i != 26:
+                            do = """SELECT in_deck FROM inventory WHERE name = {}""".format(i + 1)
+                            if cur.execute(do).fetchall()[0][0] > 0:
+                                kolvo_cards_in_deck += cur.execute(do).fetchall()[0][0]
                     do = """SELECT data, in_deck FROM inventory WHERE name = {}""".format(indexes[order])
                     in_inventory = cur.execute(do).fetchall()[0][0]
                     in_deck = cur.execute(do).fetchall()[0][1]
                     if in_deck == 0:
-                        in_deck += 1
+                        if kolvo_cards_in_deck < 20:
+                            in_deck += 1
                     elif in_deck == 1:
                         if in_inventory == 2:
-                            in_deck += 1
+                            if kolvo_cards_in_deck < 20:
+                                in_deck += 1
+                            else:
+                                in_deck = 0
                         else:
                             in_deck = 0
                     elif in_deck == 2:
                         in_deck = 0
                     do = """UPDATE inventory SET in_deck = {} WHERE name = {}""".format(in_deck, indexes[order])
                     cur.execute(do)
-                    print(in_deck, "in deck", indexes[order], "card index")
+                    kolvo_cards_in_deck = 0
+                    for i in range(30):
+                        if i != 25 or i != 26:
+                            do = """SELECT in_deck FROM inventory WHERE name = {}""".format(i + 1)
+                            if cur.execute(do).fetchall()[0][0] > 0:
+                                kolvo_cards_in_deck += cur.execute(do).fetchall()[0][0]
             order += 1
+        print_text("Кол-во кард в колоде: {}".format(kolvo_cards_in_deck), int(w * 0.74), int(h * 0.96), int(text_size * 1.5), font_color="white")
 
 
 def print_text(message, x, y, font_size, font_color=(0, 0, 0), font_type="Palatino Linotype.ttf"):
@@ -411,7 +430,6 @@ def lootbox_opens():
             pygame.draw.rect(screen, "white", (
             int(w // 2) - int(w * 0.109 * 0.5) - 5, int(h // 2) - int(h * 0.47) - 5, int(w * 0.109) + 10,
             int(h * 0.296) + 10))
-            print((int(w // 2) - int(w * 0.109 * 0.5) - i * int(w * 0.17 / 20), int(h // 2) - int(h * 0.47) + i * int(h * 0.255 / 20)))
             screen.blit(pygame.transform.scale(bestiary, (int(w * 0.109), int(h * 0.296))),
                         (int(w // 2) - int(w * 0.109 * 0.5), int(h // 2) - int(h * 0.47)))
             pygame.display.update()
@@ -421,7 +439,6 @@ def lootbox_opens():
             do = """UPDATE inventory SET data = {} WHERE name = {}""".format(int(number) + 1, drop[i * 2])
             cur.execute(do)
         #con.commit()
-        time.sleep(1)
 
 def table_restart():
     global cache_1, cache_2, cache_3, cache_hold, coord_slots_hand, coord_slots, card_places
@@ -1623,10 +1640,12 @@ def run_menu():
 
 
 def run_inventory():
+    global kolvo_cards_in_deck
     button = Button(int(w * 0.021), int(h * 0.039), w - int(w * 0.021), 0, "X", w - int(w * 0.016), int(h * 0.0117), text_size)
     game = True
     cache_invnt = []
     cache_names = []
+    kolvo_cards_in_deck = 0
     for i in range(30):
         do = """SELECT data FROM inventory WHERE name = {}""".format(i + 1)
         kolvo = cur.execute(do).fetchall()[0][0]
@@ -1637,17 +1656,21 @@ def run_inventory():
             photo = pygame.transform.scale(photo, (int(w * 0.14), int(h * 0.42)))
             cache_names.append(i + 1)
             cache_invnt.append(photo)
+        if i != 25 or i != 26:
+            do = """SELECT in_deck FROM inventory WHERE name = {}""".format(i + 1)
+            if cur.execute(do).fetchall()[0][0] > 0:
+                kolvo_cards_in_deck += cur.execute(do).fetchall()[0][0]
     return_cards(cache_invnt)
     pages = len(cache_invnt) // 8
     if len(cache_invnt) / 8 >= pages:
         pages += 1
-    PCB = PageInventory(pages, w // 2 * 0.7, h * 0.9, h * 0.05, h * 0.02, return_cards())
+    PCB = PageInventory(pages, w // 2 * 0.85, h * 0.9, h * 0.05, h * 0.02, return_cards())
     PCB_cards = PageInventory(len(cache_invnt), w * 0.05, h * 0.05, h * 0.05, h * 0.02, return_cards(), cache_names)
     while game:
         screen.blit(bg, (0, 0))
         button.draw_back()
         PCB_cards.draw_page()
-        PCB.click_verification()
+        PCB.page_select_button()
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
@@ -1708,7 +1731,6 @@ def run_lootbox():
                 dop_y_2 = 20 * int(h * 0.625 / 21)
                 shirina = int(w * 0.109)
                 visota = int(h * 0.296)
-                print(visota)
                 screen.blit(drop[1], (coord_x - dop_x,
                                       coord_y + dop_y))
                 screen.blit(drop[3], (coord_x + dop_x,
