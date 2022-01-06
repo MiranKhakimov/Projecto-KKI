@@ -1,2 +1,2 @@
-a = 6
-print(a // 4)
+for i in range(0):
+    print(123)

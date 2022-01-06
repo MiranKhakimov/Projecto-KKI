@@ -94,6 +94,8 @@ cache_1 = [bg, 0, bg, 0, bg, 0, bg, 0]
 cache_2 = [bg, 0, bg, 0, bg, 0, bg, 0]
 cache_3 = [bg, 0, bg, 0, bg, 0, bg, 0]
 cache_hold = [0, 0, 0, 0]
+your_deck = []
+his_deck = []
 
 death_cache_1 = [0, 0, 0, 0]
 death_cache_2 = [0, 0, 0, 0]
@@ -320,7 +322,7 @@ class PageInventory:
             else:
                 cache = pygame.transform.scale(butt, (self.size, self.size))
                 screen.blit(cache, (self.os_x + i * (self.size + self.distance), self.os_y))
-            print_text(str(i + 1), self.os_x + self.os_x * 0.028 + i * (self.size + self.distance), self.os_y + self.os_y * 0.02, text_size)
+            print_text(str(i + 1), self.os_x + self.os_x * 0.025 + i * (self.size + self.distance), self.os_y + self.os_y * 0.02, text_size)
 
 
     def page_select(self, page=-1):
@@ -339,7 +341,6 @@ class PageInventory:
         else:
             end = page * 8 + 8
         order = 0
-        mouse = pygame.mouse.get_pressed()
         coord = pygame.mouse.get_pos()
         indexes = self.cards_index[page * 8:end]
         for i in self.cards[page * 8:end]:
@@ -347,7 +348,9 @@ class PageInventory:
             dop_y = int(h * 0.43) * (order // 4)
             screen.blit(i, (self.os_x + dop_x, self.os_y + dop_y))
             do = """SELECT in_deck FROM inventory WHERE name = {}""".format(indexes[order])
-            print_text("- {}".format(cur.execute(do).fetchall()[0][0]), self.os_x + dop_x + int(w * 0.16), self.os_y + dop_y + int(h * 0.20), text_size * 4, font_color="white")
+            print_text("- {}".format(cur.execute(do).fetchall()[0][0]), self.os_x + dop_x + int(w * 0.16), self.os_y + dop_y + int(h * 0.2), text_size * 4, font_color="white")
+            do = """SELECT data FROM inventory WHERE name = {}""".format(indexes[order])
+            print_text("всего: {}".format(cur.execute(do).fetchall()[0][0]), self.os_x + dop_x + int(w * 0.15), self.os_y + dop_y + int(h * 0.3), int(text_size * 1.5), font_color=(100, 100, 100))
             if self.os_x + dop_x <= coord[0] <= self.os_x + dop_x + int(w * 0.14) and self.os_y + dop_y <= coord[1] <= self.os_y + dop_y + int(h * 0.42):
                 if mouse_pos:
                     kolvo_cards_in_deck = 0
@@ -399,49 +402,87 @@ def lootbox_opens():
         do = """UPDATE inventory SET data = {} WHERE name = 'money'""".format(int(money) - 100)
         cur.execute(do)
         drop = []
-        for i in range(4):
-            card = 0
-            x = True
-            while x:
-                x = False
-                card = random.randint(1, 30)
-                if card in drop:
-                    x = True
-                elif card == 26 or card == 27:
-                    x = True
-                do = """SELECT data FROM inventory WHERE name = {}""".format(card)
-                kolvo = cur.execute(do).fetchall()[0][0]
-                if kolvo >= 2:
-                    x = True
-            do = """SELECT name FROM cards WHERE key = {}""".format(card)
-            name = cur.execute(do).fetchall()[0][0]
-            photo = pygame.image.load("{}_stats.png".format(name))
-            photo = pygame.transform.scale(photo, (int(w * 0.109), int(h * 0.296)))
-            drop.append(card)
-            drop.append(photo)
-        for i in range(21):
-            screen.blit(bg, (0, 0))
-            screen.blit(pygame.transform.scale(tupo_pent, (int(h * 0.7), int(h * 0.7))),
-                        (int(w // 2) - int(h * 0.7 * 0.5), int(h // 2) - int(h * 0.7 * 0.5)))
-            screen.blit(drop[1], (int(w // 2) - int(w * 0.109 * 0.5) - i * int(w * 0.17 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.255 / 21)))
-            screen.blit(drop[3], (int(w // 2) - int(w * 0.109 * 0.5) + i * int(w * 0.17 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.255 / 21)))
-            screen.blit(drop[5], (int(w // 2) - int(w * 0.109 * 0.5) - i * int(w * 0.118 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.625 / 21)))
-            screen.blit(drop[7], (int(w // 2) - int(w * 0.109 * 0.5) + i * int(w * 0.118 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.625 / 21)))
-            pygame.draw.rect(screen, "white", (
-            int(w // 2) - int(w * 0.109 * 0.5) - 5, int(h // 2) - int(h * 0.47) - 5, int(w * 0.109) + 10,
-            int(h * 0.296) + 10))
-            screen.blit(pygame.transform.scale(bestiary, (int(w * 0.109), int(h * 0.296))),
-                        (int(w // 2) - int(w * 0.109 * 0.5), int(h // 2) - int(h * 0.47)))
-            pygame.display.update()
-        for i in range(4):
-            do = """SELECT data FROM inventory WHERE name = {}""".format(drop[i * 2])
-            number = cur.execute(do).fetchall()[0][0]
-            do = """UPDATE inventory SET data = {} WHERE name = {}""".format(int(number) + 1, drop[i * 2])
-            cur.execute(do)
-        #con.commit()
+        max_card = True
+        for i in range(30):
+            do = """SELECT data FROM inventory WHERE name = {}""".format(i+1)
+            result = cur.execute(do).fetchall()[0][0]
+            if result < 2:
+                break
+            if i == 29 and i == 2:
+                max_card = False
+        if max_card:
+            for i in range(4):
+                card = 0
+                x = True
+                while x:
+                    x = False
+                    card = random.randint(1, 30)
+                    if card in drop:
+                        x = True
+                    elif card == 26 or card == 27:
+                        x = True
+                    do = """SELECT data FROM inventory WHERE name = {}""".format(card)
+                    kolvo = cur.execute(do).fetchall()[0][0]
+                    if kolvo >= 2:
+                        x = True
+                do = """SELECT name FROM cards WHERE key = {}""".format(card)
+                name = cur.execute(do).fetchall()[0][0]
+                photo = pygame.image.load("{}_stats.png".format(name))
+                photo = pygame.transform.scale(photo, (int(w * 0.109), int(h * 0.296)))
+                drop.append(card)
+                drop.append(photo)
+            for i in range(21):
+                screen.blit(bg, (0, 0))
+                screen.blit(pygame.transform.scale(tupo_pent, (int(h * 0.7), int(h * 0.7))),
+                            (int(w // 2) - int(h * 0.7 * 0.5), int(h // 2) - int(h * 0.7 * 0.5)))
+                screen.blit(drop[1], (int(w // 2) - int(w * 0.109 * 0.5) - i * int(w * 0.17 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.255 / 21)))
+                screen.blit(drop[3], (int(w // 2) - int(w * 0.109 * 0.5) + i * int(w * 0.17 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.255 / 21)))
+                screen.blit(drop[5], (int(w // 2) - int(w * 0.109 * 0.5) - i * int(w * 0.118 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.625 / 21)))
+                screen.blit(drop[7], (int(w // 2) - int(w * 0.109 * 0.5) + i * int(w * 0.118 / 21), int(h // 2) - int(h * 0.47) + i * int(h * 0.625 / 21)))
+                pygame.draw.rect(screen, "white", (
+                int(w // 2) - int(w * 0.109 * 0.5) - 5, int(h // 2) - int(h * 0.47) - 5, int(w * 0.109) + 10,
+                int(h * 0.296) + 10))
+                screen.blit(pygame.transform.scale(bestiary, (int(w * 0.109), int(h * 0.296))),
+                            (int(w // 2) - int(w * 0.109 * 0.5), int(h // 2) - int(h * 0.47)))
+                pygame.display.update()
+            for i in range(4):
+                do = """SELECT data FROM inventory WHERE name = {}""".format(drop[i * 2])
+                number = cur.execute(do).fetchall()[0][0]
+                do = """UPDATE inventory SET data = {} WHERE name = {}""".format(int(number) + 1, drop[i * 2])
+                cur.execute(do)
+            #con.commit()
 
 def table_restart():
-    global cache_1, cache_2, cache_3, cache_hold, coord_slots_hand, coord_slots, card_places
+    global cache_1, cache_2, cache_3, cache_hold, coord_slots_hand, coord_slots, card_places, your_deck, his_deck
+    do_words = ['his_1', 'his_2', 'his_3', 'his_4', 'ur_1', 'ur_2', 'ur_3', 'ur_4', 'ur_hand_1', 'ur_hand_2',
+                'ur_hand_3', 'ur_hand_4', 'his_hand_1', 'his_hand_2', 'his_hand_3', 'his_hand_4',]
+    for i in do_words:
+        do = """UPDATE gaming_table SET data = 0 WHERE slot = '{}'""".format(i)
+        cur.execute(do)
+    for i in range(30):
+        do = """SELECT in_deck FROM inventory WHERE name = {}""".format(i+1)
+        result = cur.execute(do).fetchall()[0][0]
+        for z in range(result):
+            your_deck.append(i+1)
+    for i in range(30):
+        his_deck.append(i+1)
+        his_deck.append(i+1)
+    while len(his_deck) > 20:
+        index_pop = random.randint(0, len(his_deck) - 1)
+        his_deck.pop(index_pop)
+    for i in range(4):
+        if len(his_deck) != 0:
+            card_index = random.randint(0, len(his_deck) - 1)
+            card = his_deck[card_index]
+            do = """UPDATE gaming_table SET data = {} WHERE slot = 'his_hand_{}'""".format(card, i + 1)
+            cur.execute(do)
+            his_deck.pop(card_index)
+        if len(your_deck) != 0:
+            card_index = random.randint(0, len(your_deck) - 1)
+            card = your_deck[card_index]
+            do = """UPDATE gaming_table SET data = {} WHERE slot = 'ur_hand_{}'""".format(card, i + 1)
+            cur.execute(do)
+            your_deck.pop(card_index)
     coord_slots = []
     cache_1 = [bg, 0, bg, 0, bg, 0, bg, 0]
     cache_2 = [bg, 0, bg, 0, bg, 0, bg, 0]
@@ -751,7 +792,7 @@ def table_active():
 
 
 def turn():
-    global card_places
+    global card_places, your_deck, his_deck
     for i in range(4):
         do = """SELECT data FROM gaming_table WHERE slot = 'ur_hand_{}' """.format(i + 1)
         result = cur.execute(do).fetchall()[0][0]
@@ -816,16 +857,20 @@ def turn():
             do = """SELECT data FROM gaming_table WHERE slot = 'his_hand_{}' """.format(i + 1)
             result = cur.execute(do).fetchall()[0][0]
             if result == 0:
-                index = randint(1, 30)
-                do = """UPDATE gaming_table SET data = {} WHERE slot = 'his_hand_{}' """.format(index, i + 1)
-                cur.execute(do)
+                if len(his_deck) != 0:
+                    index = randint(0, len(his_deck) - 1)
+                    do = """UPDATE gaming_table SET data = {} WHERE slot = 'his_hand_{}' """.format(his_deck[index], i + 1)
+                    cur.execute(do)
+                    his_deck.pop(index)
         for i in range(4):
             do = """SELECT data FROM gaming_table WHERE slot = 'ur_hand_{}' """.format(i + 1)
             result = cur.execute(do).fetchall()[0][0]
             if result == 0:
-                index = randint(1, 30)
-                do = """UPDATE gaming_table SET data = {} WHERE slot = 'ur_hand_{}' """.format(index, i + 1)
-                cur.execute(do)
+                if len(your_deck) != 0:
+                    index = randint(0, len(your_deck) - 1)
+                    do = """UPDATE gaming_table SET data = {} WHERE slot = 'ur_hand_{}' """.format(your_deck[index], i + 1)
+                    cur.execute(do)
+                    your_deck.pop(index)
         for i in range(4):
             do = """SELECT data FROM gaming_table WHERE slot = 'ur_{}' """.format(i + 1)
             result = cur.execute(do).fetchall()[0][0]
