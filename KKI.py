@@ -399,32 +399,43 @@ def lootbox_opens():
     do = """SELECT data FROM inventory WHERE name = 'money'"""
     money = cur.execute(do).fetchall()[0][0]
     if int(money) >= 100:
-        do = """UPDATE inventory SET data = {} WHERE name = 'money'""".format(int(money) - 100)
-        cur.execute(do)
         drop = []
         max_card = True
+        cards = 0
+        last_drop = []
         for i in range(30):
             do = """SELECT data FROM inventory WHERE name = {}""".format(i+1)
             result = cur.execute(do).fetchall()[0][0]
-            if result < 2:
-                break
-            if i == 29 and i == 2:
-                max_card = False
+            if i != 25 or i != 26:
+                cards += result
+        if cards == 52:
+            for i in range(30):
+                do = """SELECT data FROM inventory WHERE name = {}""".format(i + 1)
+                result = cur.execute(do).fetchall()[0][0]
+                if result < 2:
+                    last_drop.append(i + 1)
+        elif cards == 56:
+            max_card = False
         if max_card:
+            do = """UPDATE inventory SET data = {} WHERE name = 'money'""".format(int(money) - 100)
+            cur.execute(do)
             for i in range(4):
                 card = 0
                 x = True
-                while x:
-                    x = False
-                    card = random.randint(1, 30)
-                    if card in drop:
-                        x = True
-                    elif card == 26 or card == 27:
-                        x = True
-                    do = """SELECT data FROM inventory WHERE name = {}""".format(card)
-                    kolvo = cur.execute(do).fetchall()[0][0]
-                    if kolvo >= 2:
-                        x = True
+                if cards != 52:
+                    while x:
+                        x = False
+                        card = random.randint(1, 30)
+                        if card in drop:
+                            x = True
+                        elif card == 26 or card == 27:
+                            x = True
+                        do = """SELECT data FROM inventory WHERE name = {}""".format(card)
+                        kolvo = cur.execute(do).fetchall()[0][0]
+                        if kolvo >= 2:
+                            x = True
+                if card == 52:
+                    card = last_drop[i]
                 do = """SELECT name FROM cards WHERE key = {}""".format(card)
                 name = cur.execute(do).fetchall()[0][0]
                 photo = pygame.image.load("{}_stats.png".format(name))
@@ -450,7 +461,7 @@ def lootbox_opens():
                 number = cur.execute(do).fetchall()[0][0]
                 do = """UPDATE inventory SET data = {} WHERE name = {}""".format(int(number) + 1, drop[i * 2])
                 cur.execute(do)
-            #con.commit()
+            con.commit()
 
 def table_restart():
     global cache_1, cache_2, cache_3, cache_hold, coord_slots_hand, coord_slots, card_places, your_deck, his_deck
@@ -710,7 +721,7 @@ def table_active():
                         WHERE slot = 'ur_hand_{}' """.format(cache_hold.index(1) + 1)
                         result = cur.execute(do).fetchall()[0][0]
                         if result == 8 or result == 21 or result == 22 or result == 23 or result == 24 or result == 25:
-                            gold_dragon()
+                            gold_dragon_func()
                         if result == 16:
                             do = """UPDATE gaming_table SET ability = 1 WHERE slot = 'ur_{}'""".format(i + 1)
                             cur.execute(do)
@@ -793,31 +804,7 @@ def table_active():
 
 def turn():
     global card_places, your_deck, his_deck
-    for i in range(4):
-        do = """SELECT data FROM gaming_table WHERE slot = 'ur_hand_{}' """.format(i + 1)
-        result = cur.execute(do).fetchall()[0][0]
-        if result == 23:
-            dragons = 0
-            free_slot = []
-            for z in range(4):
-                do = """SELECT data FROM gaming_table WHERE slot = 'ur_{}' """.format(z + 1)
-                res = cur.execute(do).fetchall()[0][0]
-                if res == 0:
-                    free_slot.append(z + 1)
-                elif res == 8 or res == 21 or res == 22 or res == 23 or res ==  24 or res == 25:
-                    dragons += 1
-            if dragons >= 2:
-                if free_slot != []:
-                    do = """UPDATE gaming_table SET data = 0 WHERE slot = 'ur_hand_{}'""".format(i+1)
-                    cur.execute(do)
-                    target = random.choice(free_slot)
-                    do = """UPDATE gaming_table SET data = 23 WHERE slot = 'ur_{}'""".format(target)
-                    cur.execute(do)
-                    att = """UPDATE gaming_table SET attack = 5 WHERE slot = 'ur_{}'""".format(target)
-                    hp = """UPDATE gaming_table SET health = 4 WHERE slot = 'ur_{}'""".format(target)
-                    cur.execute(att)
-                    cur.execute(hp)
-                    gold_dragon()
+    black_dragon_func()
     card_places[0] = int(card_places[0]) - 1
     if card_places[0] == 0:
         for i in range(4):
@@ -888,6 +875,7 @@ def turn():
                     cur.execute(do)
     else:
         card_places[0] -= 1
+    black_dragon_func()
     drackonchik_func()
     death()
 
@@ -1260,8 +1248,34 @@ def shadow_demon(pos):
                 func_choice = 0
                 turn()
 
+def black_dragon_func():
+    for i in range(4):
+        do = """SELECT data FROM gaming_table WHERE slot = 'ur_hand_{}' """.format(i + 1)
+        result = cur.execute(do).fetchall()[0][0]
+        if result == 23:
+            dragons = 0
+            free_slot = []
+            for z in range(4):
+                do = """SELECT data FROM gaming_table WHERE slot = 'ur_{}' """.format(z + 1)
+                res = cur.execute(do).fetchall()[0][0]
+                if res == 0:
+                    free_slot.append(z + 1)
+                elif res == 8 or res == 21 or res == 22 or res == 23 or res ==  24 or res == 25:
+                    dragons += 1
+            if dragons >= 2:
+                if free_slot != []:
+                    do = """UPDATE gaming_table SET data = 0 WHERE slot = 'ur_hand_{}'""".format(i+1)
+                    cur.execute(do)
+                    target = random.choice(free_slot)
+                    do = """UPDATE gaming_table SET data = 23 WHERE slot = 'ur_{}'""".format(target)
+                    cur.execute(do)
+                    att = """UPDATE gaming_table SET attack = 5 WHERE slot = 'ur_{}'""".format(target)
+                    hp = """UPDATE gaming_table SET health = 4 WHERE slot = 'ur_{}'""".format(target)
+                    cur.execute(att)
+                    cur.execute(hp)
+                    gold_dragon_func()
 
-def gold_dragon():
+def gold_dragon_func():
     for z in range(4):
         do = """SELECT data FROM gaming_table WHERE slot = 'ur_{}' """.format(z + 1)
         res = cur.execute(do).fetchall()[0][0]
@@ -1706,7 +1720,7 @@ def run_inventory():
                 kolvo_cards_in_deck += cur.execute(do).fetchall()[0][0]
     return_cards(cache_invnt)
     pages = len(cache_invnt) // 8
-    if len(cache_invnt) / 8 >= pages:
+    if len(cache_invnt) / 8 > pages:
         pages += 1
     PCB = PageInventory(pages, w // 2 * 0.85, h * 0.9, h * 0.05, h * 0.02, return_cards())
     PCB_cards = PageInventory(len(cache_invnt), w * 0.05, h * 0.05, h * 0.05, h * 0.02, return_cards(), cache_names)
@@ -1812,13 +1826,13 @@ def run_lootbox():
                         card_show = pygame.image.load("{}_stats.png".format(result))
                         card_show = pygame.transform.scale(card_show, (int(w * 0.101) * 2.5, int(h * 0.278) * 2.5))
                         screen.blit(card_show, (0, h / 2 - int(h * 0.278) * 1.25))
+        con.commit()
         mouse = pygame.mouse.get_pressed()
         if mouse[0] == 1:
             drop = []
         button.draw_back()
         open_button.opening_lootbox()
         money.otrisovka()
-
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
