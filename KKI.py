@@ -125,12 +125,12 @@ def return_cards(cards=[]):
 
 
 class Button:
-    def __init__(self, width, height, x, y, message, x_m, y_m, font=text_size, font_color=(0, 0, 0)):
+    def __init__(self, width, height, x, y, message, x_m, y_m, font=text_size , act_cl=butt, inact_cl=butt_pres, font_color=(0, 0, 0)):
         self.font_color = font_color
         self.width = width
         self.height = height
-        self.act_cl = butt
-        self.inact_cl = butt_pres
+        self.act_cl = act_cl
+        self.inact_cl = inact_cl
         self.message = message
         self.x = x
         self.y = y
@@ -142,14 +142,14 @@ class Button:
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if self.x <= int(mouse[0]) <= int(self.x + self.width) and self.y < int(mouse[1]) < self.y + self.height:
-            cache = pygame.transform.scale(butt_pres, (self.width, self.height))
+            cache = pygame.transform.scale(self.inact_cl, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
             if click[0] == 1:
                 game = False
                 pygame.quit()
                 quit()
         else:
-            cache = pygame.transform.scale(butt, (self.width, self.height))
+            cache = pygame.transform.scale(self.act_cl, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
@@ -157,14 +157,12 @@ class Button:
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if self.x <= int(mouse[0]) <= int(self.x + self.width) and self.y < int(mouse[1]) < self.y + self.height:
-            cache = pygame.transform.scale(butt_pres, (self.width, self.height))
+            cache = pygame.transform.scale(self.inact_cl, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
             if click[0] == 1:
-                table_restart()
-                run_game()
-                table_create()
+                run_levels()
         else:
-            cache = pygame.transform.scale(butt, (self.width, self.height))
+            cache = pygame.transform.scale(self.act_cl, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
@@ -172,12 +170,12 @@ class Button:
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if self.x <= int(mouse[0]) <= int(self.x + self.width) and self.y < int(mouse[1]) < self.y + self.height:
-            cache = pygame.transform.scale(butt_pres, (self.width, self.height))
+            cache = pygame.transform.scale(self.inact_cl, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
             if click[0] == 1:
                 run_menu()
         else:
-            cache = pygame.transform.scale(butt, (self.width, self.height))
+            cache = pygame.transform.scale(self.act_cl, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
@@ -185,12 +183,12 @@ class Button:
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if self.x <= int(mouse[0]) <= int(self.x + self.width) and self.y < int(mouse[1]) < self.y + self.height:
-            cache = pygame.transform.scale(butt_pres, (self.width, self.height))
+            cache = pygame.transform.scale(self.inact_cl, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
             if click[0] == 1:
                 run_settings()
         else:
-            cache = pygame.transform.scale(butt, (self.width, self.height))
+            cache = pygame.transform.scale(self.act_cl, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
@@ -198,12 +196,12 @@ class Button:
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if self.x <= int(mouse[0]) <= int(self.x + self.width) and self.y < int(mouse[1]) < self.y + self.height:
-            cache = pygame.transform.scale(butt_pres, (self.width, self.height))
+            cache = pygame.transform.scale(self.inact_cl, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
             if click[0] == 1:
                 run_inventory()
         else:
-            cache = pygame.transform.scale(butt, (self.width, self.height))
+            cache = pygame.transform.scale(self.act_cl, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
@@ -211,13 +209,13 @@ class Button:
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if self.x <= int(mouse[0]) <= int(self.x + self.width) and self.y < int(mouse[1]) < self.y + self.height:
-            cache = pygame.transform.scale(butt_pres, (self.width, self.height))
+            cache = pygame.transform.scale(self.inact_cl, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
             if click[0] == 1:
                 card_places[0] = 1
                 turn()
         else:
-            cache = pygame.transform.scale(butt, (self.width, self.height))
+            cache = pygame.transform.scale(self.act_cl, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
@@ -225,18 +223,32 @@ class Button:
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if self.x <= int(mouse[0]) <= int(self.x + self.width) and self.y < int(mouse[1]) < self.y + self.height:
-            cache = pygame.transform.scale(butt_pres, (self.width, self.height))
+            cache = pygame.transform.scale(self.inact_cl, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
             if click[0] == 1:
                 lootbox_opens()
         else:
-            cache = pygame.transform.scale(butt, (self.width, self.height))
+            cache = pygame.transform.scale(self.act_cl, (self.width, self.height))
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
     def otrisovka(self):
-        cache = pygame.transform.scale(butt, (self.width, self.height))
+        cache = pygame.transform.scale(self.act_cl, (self.width, self.height))
         screen.blit(cache, (self.x, self.y))
+        print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
+
+    def enemy_select(self, index, press=False):
+        cache = pygame.transform.scale(self.act_cl, (self.width, self.height))
+        screen.blit(cache, (self.x, self.y))
+        if press:
+            if index == "sfinks":
+                table_restart()
+                run_game()
+                table_create()
+            elif index == "devil":
+                table_restart()
+                run_game()
+                table_create()
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
 
@@ -1842,6 +1854,32 @@ def run_lootbox():
                 quit()
         pygame.display.update()
 
+def run_levels():
+    game = True
+    enemy_devil = pygame.image.load("enemy_hero_devil.png")
+    enemy_sfinks = pygame.image.load("enemy_hero_androsfinks.png")
+    while game:
+        screen.blit(bg, (0, 0))
+        button = Button(int(w * 0.15), int(h * 0.07), w // 2 - int(w * 0.075), int(h * 0.88), "Отмена", w // 2 - int(w * 0.037), int(h * 0.9), int(text_size * 1.5))
+        hero_1 = Button(int(w * 0.265), int(h * 0.63), w // 2 - int(w * 0.3), int(h * 0.12), "Играть против сил тьмы", w // 2 - int(w * 0.28), int(h * 0.77), int(text_size * 1.4), act_cl=enemy_devil, inact_cl=enemy_devil, font_color="white")
+        hero_2 = Button(int(w * 0.265), int(h * 0.63), w // 2 + int(w * 0.035), int(h * 0.12), "Играть против сил света", w // 2 + int(w * 0.05), int(h * 0.77), int(text_size * 1.4), act_cl=enemy_sfinks, inact_cl=enemy_sfinks, font_color="white")
+        button.draw_back()
+        hero_1.enemy_select("devil")
+        hero_2.enemy_select("sfinks")
+        coord = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    run_menu()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if w // 2 - int(w * 0.3) < coord[0] < w // 2 - int(w * 0.3) + int(w * 0.265) and int(h * 0.12) < coord[1] < int(h * 0.12) + int(h * 0.63):
+                    hero_1.enemy_select("devil", True)
+                elif w // 2 + int(w * 0.035) < coord[0] < w // 2 + int(w * 0.035) + int(w * 0.265) and int(h * 0.12) < coord[1] < int(h * 0.12) + int(h * 0.63):
+                    hero_1.enemy_select("sfinks", True)
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+        pygame.display.update()
 
 def run_game():
     global pos_abil, func_choice
