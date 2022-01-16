@@ -242,11 +242,11 @@ class Button:
         screen.blit(cache, (self.x, self.y))
         if press:
             if index == "sfinks":
-                table_restart()
+                table_restart("sfinks")
                 run_game()
                 table_create()
             elif index == "devil":
-                table_restart()
+                table_restart("devil")
                 run_game()
                 table_create()
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
@@ -475,7 +475,7 @@ def lootbox_opens():
                 cur.execute(do)
             con.commit()
 
-def table_restart():
+def table_restart(enemy):
     global cache_1, cache_2, cache_3, cache_hold, coord_slots_hand, coord_slots, card_places, your_deck, his_deck
     do_words = ['his_1', 'his_2', 'his_3', 'his_4', 'ur_1', 'ur_2', 'ur_3', 'ur_4', 'ur_hand_1', 'ur_hand_2',
                 'ur_hand_3', 'ur_hand_4', 'his_hand_1', 'his_hand_2', 'his_hand_3', 'his_hand_4',]
@@ -487,12 +487,10 @@ def table_restart():
         result = cur.execute(do).fetchall()[0][0]
         for z in range(result):
             your_deck.append(i+1)
-    for i in range(30):
-        his_deck.append(i+1)
-        his_deck.append(i+1)
-    while len(his_deck) > 20:
-        index_pop = random.randint(0, len(his_deck) - 1)
-        his_deck.pop(index_pop)
+    if enemy == "devil":
+        his_deck = [13, 13, 13, 23, 23, 23, 21, 21, 10, 10, 15, 17, 17, 15, 18, 18, 30, 30, 14, 14]
+    elif enemy == "sfinks":
+        his_deck = [1, 1, 1, 2, 2, 2, 3, 3, 3, 7, 7, 7, 4, 4, 4, 22, 22, 20, 6, 6]
     for i in range(4):
         if len(his_deck) != 0:
             card_index = random.randint(0, len(his_deck) - 1)
@@ -840,10 +838,10 @@ def turn():
                                 hp = cur.execute(do_hp).fetchall()[0][0]
                                 do_at = """SELECT attack from cards where key = {}""".format(result)
                                 at = cur.execute(do_at).fetchall()[0][0]
-                                do_2_hp = """UPDATE gaming_table SET health = {} WHERE slot = 'his_{}' """.format(hp,
+                                do_2_hp = """UPDATE gaming_table SET health = {} WHERE slot = 'his_{}' """.format(hp + 3,
                                                                                                                  i + 1)
                                 cur.execute(do_2_hp)
-                                do_2_at = """UPDATE gaming_table SET attack = {} WHERE slot = 'his_{}' """.format(at,
+                                do_2_at = """UPDATE gaming_table SET attack = {} WHERE slot = 'his_{}' """.format(at + 3,
                                                                                                                  i + 1)
                                 cur.execute(do_2_at)
                                 card_places[1] = int(card_places[1]) - 1
@@ -1070,6 +1068,7 @@ def card_ability(index, position):
                 if result == 10 or result == 14 or result == 15 or result == 16 or result == 17 or result == 18 or result == 19:
                     do = """UPDATE gaming_table SET data = 0 WHERE slot = 'ur_{}'""".format(i + 1)
                     cur.execute(do)
+                    cache_2[i * 2 + 1] = 0
                     do = """UPDATE gaming_table SET ability = 0 WHERE slot = 'ur_{}'""".format(i + 1)
                     cur.execute(do)
                     buff += 1
@@ -1919,3 +1918,5 @@ def run_game():
 
 
 run_menu()
+
+#надо доделать настройку звука анимаций, добавить анимации
