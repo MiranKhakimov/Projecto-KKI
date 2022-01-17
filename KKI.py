@@ -116,6 +116,7 @@ pymixer.play(loops=-1)
 
 card_list = []
 
+
 def return_cards(cards=[]):
     global card_list
     if cards == []:
@@ -295,6 +296,7 @@ class SettingsButton:
                 if volume_index < 0:
                     volume_index = len(volume_bar) - 1
                     volume = 1
+            pygame.mixer.Sound.set_volume(attack_sound, volume)
             pymixer.set_volume(volume)
 
     def open_lootbox(self):
@@ -404,7 +406,9 @@ def print_text(message, x, y, font_size, font_color=(0, 0, 0), font_type="Palati
     text = font_type.render(message, True, font_color)
     screen.blit(text, (x, y))
 
+
 drop = []
+
 
 def lootbox_opens():
     global drop
@@ -1852,6 +1856,7 @@ def run_settings():
                 quit()
         pygame.display.update()
 
+
 def run_lootbox():
     global drop
     game = True
@@ -1925,6 +1930,7 @@ def run_lootbox():
         money.otrisovka()
         check()
         pygame.display.update()
+
 
 def run_levels():
     game = True
