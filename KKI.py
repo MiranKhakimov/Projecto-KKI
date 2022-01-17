@@ -521,6 +521,10 @@ def table_restart(enemy):
     for i in range(4):
         coord = start[0] + i * (int(w * 0.136) + int(w * 0.0043)), start[1]
         coord_slots.append(coord)
+    do = """UPDATE gaming_table SET data = 0 WHERE slot = 'ur_at'"""
+    cur.execute(do)
+    do = """UPDATE gaming_table SET data = 0 WHERE slot = 'his_at'"""
+    cur.execute(do)
 
 
 def table_create():
@@ -888,6 +892,39 @@ def turn():
     black_dragon_func()
     drackonchik_func()
     death()
+    ur_deck_end = True
+    his_deck_end = True
+    for i in range(4):
+        do = """SELECT data FROM gaming_table WHERE slot = 'ur_hand_{}'""".format(i + 1)
+        res = cur.execute(do).fetchall()[0][0]
+        do = """SELECT data FROM gaming_table WHERE slot = 'ur_{}'""".format(i + 1)
+        res_2 = cur.execute(do).fetchall()[0][0]
+        if res != 0 or res_2 != 0:
+            ur_deck_end = False
+    for i in range(4):
+        do = """SELECT data FROM gaming_table WHERE slot = 'his_hand_{}'""".format(i + 1)
+        res = cur.execute(do).fetchall()[0][0]
+        do = """SELECT data FROM gaming_table WHERE slot = 'his_{}'""".format(i + 1)
+        res_2 = cur.execute(do).fetchall()[0][0]
+        if res != 0 or res_2 != 0:
+            his_deck_end = False
+    if len(your_deck) == 0 and len(his_deck) == 0:
+        if ur_deck_end and his_deck_end:
+            end_game("no_win")
+    elif len(your_deck) == 0:
+        if ur_deck_end:
+            end_game("lose")
+    elif len(his_deck) == 0:
+        if his_deck_end:
+            end_game("win")
+    do = """SELECT data FROM gaming_table WHERE slot = 'ur_at'"""
+    do_2 = """SELECT data FROM gaming_table WHERE slot = 'his_at'"""
+    ur_at = cur.execute(do).fetchall()[0][0]
+    his_at = cur.execute(do_2).fetchall()[0][0]
+    if int(ur_at) - int(his_at) >= 15:
+        end_game("win")
+    elif int(his_at) - int(ur_at) >= 15:
+        end_game("lose")
 
 
 def card_ability(index, position):
@@ -1683,28 +1720,70 @@ def death_anim():
     death_cache_2 = [0, 0, 0, 0]
 
 
+def check():
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                run_menu()
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            quit()
+
+
+def end_game(result):
+    screen.blit(menu_plate, (w // 2 - int(w * 0.292) // 2, h // 2 - int(h * 0.687) // 2))
+    button_exit = Button(int(w * 0.15), int(h * 0.1), w // 2 - int(w * 0.075), int(h * 0.5), "Продолжить", int(w * 0.445), int(h * 0.535), int(text_size * 1.25))
+    game = True
+    if result == "win":
+        do = """SELECT data FROM inventory WHERE name = 'money'"""
+        moneys = cur.execute(do).fetchall()[0][0]
+        do = """UPDATE inventory SET data = {} WHERE name = 'money'""".format(moneys + 100)
+        cur.execute(do)
+        con.commit()
+        while game:
+            button_exit.draw_back()
+            print_text("Вы получили 100 монет", int(w * 0.41), int(h * 0.65), int(text_size * 1.15))
+            print_text("Победа", int(w * 0.4), int(h * 0.35), int(text_size * 4))
+            check()
+            pygame.display.update()
+    elif result == "lose":
+        con.commit()
+        while game:
+            button_exit.draw_back()
+            print_text("Вы ничего не получили(", int(w * 0.405), int(h * 0.65), int(text_size * 1.15))
+            print_text("Поражение", int(w * 0.4), int(h * 0.35), int(text_size * 2.5))
+            check()
+            pygame.display.update()
+    elif result == "no_win":
+        do = """SELECT data FROM inventory WHERE name = 'money'"""
+        moneys = cur.execute(do).fetchall()[0][0]
+        do = """UPDATE inventory SET data = {} WHERE name = 'money'""".format(moneys + 25)
+        cur.execute(do)
+        con.commit()
+        while game:
+            button_exit.draw_back()
+            print_text("Вы получили 25 монет", int(w * 0.41), int(h * 0.65), int(text_size * 1.15))
+            print_text("НИЧЬЯ", int(w * 0.4), int(h * 0.35), int(text_size * 3.8))
+            check()
+            pygame.display.update()
+
+
 def run_menu():
     screen.blit(bg, (0, 0))
     screen.blit(menu_plate, (w // 2 - int(w * 0.292) // 2, h // 2 - int(h * 0.687) // 2))
     game = True
-    button_start = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.3, "В бой!", w * 0.478, h * 0.321, int(text_size * 1.05))
-    button_inventory = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.4, "Инвентарь", w * 0.462, h * 0.421, text_size)
-    button_settings = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.5, "Настройки", w * 0.462, h * 0.521, text_size)
-    button_exit = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), h * 0.6, "Акоп", w * 0.485, h * 0.621, text_size)
-    button_lootbox = SettingsButton(w // 2 - int(w * 0.023), h * 0.7445, w // 2 - int(w * 0.023) + int(h * 0.1), h * 0.7445 + int(h * 0.09))
+    button_start = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), int(h * 0.3), "В бой!", int(w * 0.478), int(h * 0.321), int(text_size * 1.05))
+    button_inventory = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), int(h * 0.4), "Инвентарь", int(w * 0.462), int(h * 0.421), text_size)
+    button_settings = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), int(h * 0.5), "Настройки", int(w * 0.462), int(h * 0.521), text_size)
+    button_exit = Button(int(w * 0.131), int(h * 0.065), w // 2 - int(w * 0.065), int(h * 0.6), "Акоп", int(w * 0.485), int(h * 0.621), text_size)
+    button_lootbox = SettingsButton(w // 2 - int(w * 0.023), int(h * 0.7445), w // 2 - int(w * 0.023) + int(h * 0.1), int(h * 0.7445) + int(h * 0.09))
     while game:
         button_lootbox.open_lootbox()
         button_exit.draw_close()
         button_start.draw_start()
         button_inventory.draw_inventory()
         button_settings.draw_settings()
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    run_menu()
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
+        check()
         pygame.display.update()
 
 
@@ -1733,8 +1812,8 @@ def run_inventory():
     pages = len(cache_invnt) // 8
     if len(cache_invnt) / 8 > pages:
         pages += 1
-    PCB = PageInventory(pages, w // 2 * 0.85, h * 0.9, h * 0.05, h * 0.02, return_cards())
-    PCB_cards = PageInventory(len(cache_invnt), w * 0.05, h * 0.05, h * 0.05, h * 0.02, return_cards(), cache_names)
+    PCB = PageInventory(pages, int(w // 2 * 0.85), int(h * 0.9), int(h * 0.05), int(h * 0.02), return_cards())
+    PCB_cards = PageInventory(len(cache_invnt), int(w * 0.05), int(h * 0.05), int(h * 0.05), int(h * 0.02), return_cards(), cache_names)
     while game:
         screen.blit(bg, (0, 0))
         button.draw_back()
@@ -1844,13 +1923,7 @@ def run_lootbox():
         button.draw_back()
         open_button.opening_lootbox()
         money.otrisovka()
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    run_menu()
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
+        check()
         pygame.display.update()
 
 def run_levels():
@@ -1907,13 +1980,7 @@ def run_game():
             bronz_dragon()
         elif func_choice == 28:
             silencer(pos_abil)
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    run_menu()
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
+        check()
         pygame.display.update()
 
 
