@@ -1,4 +1,5 @@
 import time
+import os
 
 import pygame, sqlite3, random
 from random import randint
@@ -405,6 +406,12 @@ def print_text(message, x, y, font_size, font_color=(0, 0, 0), font_type="Palati
     font_type = pygame.font.Font(font_type, font_size)
     text = font_type.render(message, True, font_color)
     screen.blit(text, (x, y))
+
+
+def load_image(name, colorkey=None):
+    fullname = os.path.join(name)
+    image = pygame.image.load(fullname)
+    return image
 
 
 drop = []
@@ -1818,13 +1825,32 @@ def run_inventory():
         pages += 1
     PCB = PageInventory(pages, int(w // 2 * 0.85), int(h * 0.9), int(h * 0.05), int(h * 0.02), return_cards())
     PCB_cards = PageInventory(len(cache_invnt), int(w * 0.05), int(h * 0.05), int(h * 0.05), int(h * 0.02), return_cards(), cache_names)
+    easter_egg = False
+    fraps = 0
+    all_sprites = pygame.sprite.Group()
+    sprite = pygame.sprite.Sprite()
+    sprite.image = load_image("Easter_egg_dragon.png")
+    sprite.rect = sprite.image.get_rect()
     while game:
+        coord = pygame.mouse.get_pos()
         screen.blit(bg, (0, 0))
         button.draw_back()
         PCB_cards.draw_page()
         PCB.page_select_button()
+        if easter_egg:
+            if fraps % 2 == 1:
+                sprite.image = load_image("Easter_egg_dragon.png")
+            else:
+                sprite.image = load_image("Easter_egg_dragon_zerk.png")
+            sprite.rect.x = coord[0] - 50
+            sprite.rect.y = coord[1] - 50
+            all_sprites.add(sprite)
+            all_sprites.draw(screen)
+            fraps += 1
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    easter_egg = True
                 if event.key == pygame.K_ESCAPE:
                     run_menu()
             if event.type == pygame.MOUSEBUTTONDOWN:
