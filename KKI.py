@@ -5,16 +5,16 @@ import pygame, sqlite3, random
 from random import randint
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  #Запускаем pygame
     pygame.init()
 
-con = sqlite3.connect("Game_base.db")
+con = sqlite3.connect("Game_base.db")   #Подключаемся к базам данных
 cur = con.cursor()
 
 
 size = 1000, 600
 
-bg = pygame.image.load("bg_black.jpg")
+bg = pygame.image.load("bg_black.jpg")   #Присваиваем все материалы к переменным
 card_back = pygame.image.load("card_back.png")
 bestiary = pygame.image.load("bestiary.PNG")
 menu_plate = pygame.image.load("menu_plate.png")
@@ -32,20 +32,19 @@ settings_bg = pygame.image.load("settings_bg.jpg")
 tupo_pent = pygame.image.load("pentagramus.png")
 attack_sound = pygame.mixer.Sound("attack_sound.mp3")
 
-screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  #Подгоняем игру под размеры монитора
 pygame.display.flip()
 w, h = pygame.display.get_surface().get_size()
 
 card_show = butt
-display_diametr = int((w ** 2 + h ** 2) ** 0.5)
+display_diametr = int((w ** 2 + h ** 2) ** 0.5)  #Находим необходимый размер шрифта
 text_size = int(display_diametr * 0.013)
-print(text_size)
 
-sword_attack = []
+sword_attack = []   #Подготавливаем списки для внедрения в них кадров для анимаций
 pentagram = []
 
 index = 0
-volume_bar = []
+volume_bar = []   #Подготавливаем мызуку и громкость
 volume_index = 5
 volume = 1
 pymixer = pygame.mixer.music
@@ -60,7 +59,7 @@ bg_music_index = ['Inscryption - The Trapper', 'AAArtileria', 'Burzum - A Thulea
 
 for i in range(15):
     photo = pygame.image.load("sword_attack_{}.png".format(i + 1))
-    photo = pygame.transform.scale(photo, (int(h * 0.296) / 1.5, int(h * 0.296) / 1.5))
+    photo = pygame.transform.scale(photo, (int(h * 0.296) / 1.5, int(h * 0.296) / 1.5))   #Циклы для внедрения кадров в списки под анимации
     sword_attack.append(photo)
 
 for i in range(22):
@@ -76,7 +75,7 @@ for i in range(6):
 
 print(w, h)
 bg = pygame.transform.scale(bg, (w, h))
-menu_plate = pygame.transform.scale(menu_plate, (int(w * 0.292), int(h * 0.687)))
+menu_plate = pygame.transform.scale(menu_plate, (int(w * 0.292), int(h * 0.687)))  #Подгоняем все объекты под размер экрана
 settings_bg = pygame.transform.scale(settings_bg, (w, h))
 edging = pygame.transform.scale(edging, (int(w * 0.109), int(h * 0.296)))
 ur_at_point = pygame.transform.scale(ur_at_point, (int(w * 0.109), int(w * 0.109)))
@@ -84,41 +83,40 @@ his_at_point = pygame.transform.scale(his_at_point, (int(w * 0.109), int(w * 0.1
 his_more = pygame.transform.scale(his_more, (int(w * 0.072), int(w * 0.072)))
 ur_more = pygame.transform.scale(ur_more, (int(w * 0.072), int(w * 0.072)))
 equals = pygame.transform.scale(equals, (int(w * 0.072), int(w * 0.072)))
-
 slot_card = pygame.transform.scale(slot_card, (int(w * 0.109), int(h * 0.296)))
 slot_card_proz = pygame.transform.scale(slot_card_proz, (int(w * 0.136), int(h * 0.37)))
 screen.blit(bg, (0, 0))
 pygame.display.update()
 
 coord_slots = []
-cache_1 = [bg, 0, bg, 0, bg, 0, bg, 0]
-cache_2 = [bg, 0, bg, 0, bg, 0, bg, 0]
-cache_3 = [bg, 0, bg, 0, bg, 0, bg, 0]
-cache_hold = [0, 0, 0, 0]
+cache_1 = [bg, 0, bg, 0, bg, 0, bg, 0] #Списки с подписью Cache нужны для сохранения информации о предыдущем кадре
+cache_2 = [bg, 0, bg, 0, bg, 0, bg, 0] #Cache 1, 2, 3 отвечают за карты, которые стояли в предыдущем кадре
+cache_3 = [bg, 0, bg, 0, bg, 0, bg, 0] #Cache Hold отвечает за карту, которую вы перетаскиваете
+cache_hold = [0, 0, 0, 0]              #Cache Wrok нужен для способности карты Врока
+wrok_cache = [0, 0, 0, 0, 0, 0, 0, 0]
 your_deck = []
 his_deck = []
 
-death_cache_1 = [0, 0, 0, 0]
+death_cache_1 = [0, 0, 0, 0]      #death cache нужны для запоминания, кто жив, а кто мертв, в момент прорисовки анимации смерти
 death_cache_2 = [0, 0, 0, 0]
 death_coord_1 = [[], [], [], []]
 death_coord_2 = [[], [], [], []]
 
-wrok_cache = [0, 0, 0, 0, 0, 0, 0, 0]
 
-card_places = [1, 1]
+card_places = [1, 1]   #Список, который запоминает количество карт, которое вы можете поставить за этот ход
 
-func_choice = 0
+func_choice = 0  #Глобальные переменные способностей, позиции карты, увеличения урона
 pos_abil = 0
 koeff_ur = 1
 koeff_his = 1
 
-pymixer.load("{}".format(bg_music[index]))
+pymixer.load("{}".format(bg_music[index]))  #запуск стардовой музыки
 pymixer.play(loops=-1)
 
 card_list = []
 
 
-def return_cards(cards=[]):
+def return_cards(cards=[]):  #Функция требуется для помощи в отрисовке инвентаря, она запоминает индексы кард на странице
     global card_list
     if cards == []:
         return card_list
@@ -126,7 +124,7 @@ def return_cards(cards=[]):
         card_list = cards
 
 
-class Button:
+class Button:  #класс нужен для создания видимых кнопок
     def __init__(self, width, height, x, y, message, x_m, y_m, font=text_size , act_cl=butt, inact_cl=butt_pres, font_color=(0, 0, 0)):
         self.font_color = font_color
         self.width = width
@@ -140,7 +138,7 @@ class Button:
         self.y_m = y_m
         self.font = font
 
-    def draw_close(self):
+    def draw_close(self): #создание кнопки выхода
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if self.x <= int(mouse[0]) <= int(self.x + self.width) and self.y < int(mouse[1]) < self.y + self.height:
@@ -155,7 +153,7 @@ class Button:
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
-    def draw_start(self):
+    def draw_start(self):  #создание кнопки для перехода к уровням
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if self.x <= int(mouse[0]) <= int(self.x + self.width) and self.y < int(mouse[1]) < self.y + self.height:
@@ -168,7 +166,7 @@ class Button:
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
-    def draw_back(self):
+    def draw_back(self):  #создание кнопки для выхода в главное меню
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if self.x <= int(mouse[0]) <= int(self.x + self.width) and self.y < int(mouse[1]) < self.y + self.height:
@@ -181,7 +179,7 @@ class Button:
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
-    def draw_settings(self):
+    def draw_settings(self):    #создание кнопки для перехода в настройки
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if self.x <= int(mouse[0]) <= int(self.x + self.width) and self.y < int(mouse[1]) < self.y + self.height:
@@ -194,7 +192,7 @@ class Button:
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
-    def draw_inventory(self):
+    def draw_inventory(self):    #создание кнопки для перехода в инвентарь
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if self.x <= int(mouse[0]) <= int(self.x + self.width) and self.y < int(mouse[1]) < self.y + self.height:
@@ -207,7 +205,7 @@ class Button:
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
-    def draw_turn(self):
+    def draw_turn(self):     #создание кнопки для пропуска хода
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if self.x <= int(mouse[0]) <= int(self.x + self.width) and self.y < int(mouse[1]) < self.y + self.height:
@@ -221,7 +219,7 @@ class Button:
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
-    def opening_lootbox(self):
+    def opening_lootbox(self):     #создание кнопки для открытие набора карт
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if self.x <= int(mouse[0]) <= int(self.x + self.width) and self.y < int(mouse[1]) < self.y + self.height:
@@ -234,12 +232,12 @@ class Button:
             screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
-    def otrisovka(self):
+    def otrisovka(self):   #Случайная функция для написания текста
         cache = pygame.transform.scale(self.act_cl, (self.width, self.height))
         screen.blit(cache, (self.x, self.y))
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
-    def enemy_select(self, index, press=False):
+    def enemy_select(self, index, press=False):    #создание кнопок для выбора уровней
         cache = pygame.transform.scale(self.act_cl, (self.width, self.height))
         screen.blit(cache, (self.x, self.y))
         if press:
@@ -254,14 +252,14 @@ class Button:
         print_text(self.message, self.x_m, self.y_m, self.font, self.font_color)
 
 
-class SettingsButton:
+class SettingsButton:    #Класс для создания невидимых кнопок
     def __init__(self, x1, y1, x2, y2):
         self.x1 = x1
         self.y1 = y1
         self.x2 = x2
         self.y2 = y2
 
-    def music_change(self):
+    def music_change(self):   #создание кнопки для смены музыки
         global index
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
@@ -279,7 +277,7 @@ class SettingsButton:
                 pymixer.load("{}".format(bg_music[index]))
                 pymixer.play(loops=-1)
 
-    def volume_change(self):
+    def volume_change(self):    #создание кнопки для смены громкости
         global volume_index
         global volume
         mouse = pygame.mouse.get_pos()
@@ -300,7 +298,7 @@ class SettingsButton:
             pygame.mixer.Sound.set_volume(attack_sound, volume)
             pymixer.set_volume(volume)
 
-    def open_lootbox(self):
+    def open_lootbox(self):    #создание кнопки для открытия окна с наборами
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if self.x1 <= mouse[0] <= self.x2 and self.y1 < mouse[1] < self.y2:
@@ -2018,4 +2016,4 @@ def run_game():
 
 run_menu()
 
-#надо доделать настройку звука анимаций, добавить анимации
+
